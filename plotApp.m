@@ -13,7 +13,7 @@ m        = (water2-water1)/(digital2 - digital1);
 % Define Variables
 voltage  = 0;
 step     = 0;
-fig = uifigure;
+fig = uifigure('WindowState','fullscreen','Name','Plot App by Raaghav');
 g = uigridlayout(fig,[6 6], 'BackgroundColor',[222/255 255/255 241/255]);
 g.RowHeight = {'1x','2x','2x','2x','2x','1x'};
 g.ColumnWidth = {'1x','1x','1x','1x','1x','1x'};
