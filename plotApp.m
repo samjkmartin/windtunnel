@@ -13,6 +13,10 @@ m        = (water2-water1)/(digital2 - digital1);
 % Define Variables
 voltage  = 0;
 step     = 0;
+delay    = 0.5;
+avgSize  = 5;
+vHolder  = zeros(1,avgSize);
+
 fig = uifigure('WindowState','fullscreen', ...
     'Name','Plot App by Raaghav');
 g = uigridlayout(fig,[6 6], 'BackgroundColor',[222/255 255/255 241/255]);
@@ -75,7 +79,7 @@ valuePanel = uipanel(g, ...
     "Title","Latest Value", ...
     "BackgroundColor",[184/255 255/255 242/255]);
 valuePanel.Layout.Row = 1;
-valuePanel.Layout.Column = [1 2];
+valuePanel.Layout.Column = 1;
 valuePanelValue = uilabel(valuePanel, ...
     "Text", 'waiting...', ...
     "HorizontalAlignment", 'center', ...
@@ -87,12 +91,24 @@ livePanel = uipanel(g, ...
     "Title","Live Value", ...
     "BackgroundColor",[184/255 255/255 242/255]);
 livePanel.Layout.Row = 1;
-livePanel.Layout.Column = [3 4];
+livePanel.Layout.Column = 2;
 livePanelValue = uilabel(livePanel, ...
     "Text", 'waiting...', ...
     "HorizontalAlignment", 'center', ...
     "VerticalAlignment", 'center');
 livePanelValue.Position(3:4) = [80 44];
+
+% Panel to display average value
+avgPanel = uipanel(g, ...
+    "Title","Average Value", ...
+    "BackgroundColor",[184/255 255/255 242/255]);
+avgPanel.Layout.Row = 1;
+avgPanel.Layout.Column = 3;
+avgPanelValue = uilabel(avgPanel, ...
+    "Text", 'waiting...', ...
+    "HorizontalAlignment", 'center', ...
+    "VerticalAlignment", 'center');
+avgPanelValue.Position(3:4) = [80 44];
 
 % Dropdown menu that chooses steps taken with crank
 stepSelector = uidropdown(g, ...
@@ -140,8 +156,11 @@ writePWMVoltage(a,'D3',3);
 stateA = 1;
 while stateA == 1
     voltage   = readVoltage(a,'A0');
+    vHolder(1) = [];
+    vHolder(avgSize) = voltage;
     livePanelValue.Text = sprintf('%5.3f',voltage);
-    pause(0.5);
+    avgPanelValue.Text = sprintf('%5.3f',mean(vHolder));
+    pause(delay);
 end
     function recordButtonPushed()
         % Define voltage and step
@@ -202,6 +221,7 @@ end
             stateA = 0;
             endButton.Text = 'Live Ended';
             livePanelValue.Text = 'Live Ended';
+            avgPanelValue.Text  = 'Live Ended';
             endButton.BackgroundColor = [252 207 149]/255;
     end
 end
