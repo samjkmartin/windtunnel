@@ -10,11 +10,13 @@ digital2 = 5;
 % Calibration slope
 m        = (water2-water1)/(digital2 - digital1);
 
-% Define Variables
-voltage  = 0;
-step     = 0;
+% Adjustable Variables
 delay    = 0.5;
 avgSize  = 5;
+
+% Define Variables for memory
+voltage  = 0;
+step     = 0;
 vHolder  = zeros(1,avgSize);
 
 fig = uifigure('WindowState','fullscreen', ...
