@@ -169,11 +169,9 @@ end
         distanceY = [distanceY, distance];
 
         % change button color
-        if recordButtonColor(1) == 0
-        else
-            recordButtonColor = [(1-step/70) step/70 0];
-            recordButton.BackgroundColor = recordButtonColor;
-        end
+        
+        recordButtonColor = [(1-step/70) step/70 0];
+        recordButton.BackgroundColor = recordButtonColor;
 
         % Update latest value
         valuePanelValue.Text = sprintf('%5.3f',voltage);
