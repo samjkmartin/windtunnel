@@ -11,7 +11,7 @@ digital2 = 5;
 m        = (water2-water1)/(digital2 - digital1);
 
 % Adjustable Variables
-delay    = 0.5;
+delay    = 0.1;
 avgSize  = 5;
 
 % Define Variables for memory
@@ -178,7 +178,7 @@ while stateA == 1
     voltage   = readVoltage(a,'A0');
     vHolder(1) = [];
     vHolder(avgSize) = voltage;
-    livePanelValue.Text = sprintf('%5.3f',voltage);
+    livePanelValue.Text = sprintf('%10.10f',voltage);
     avgPanelValue.Text = sprintf('%5.3f',mean(vHolder));
     pause(delay);
 end
