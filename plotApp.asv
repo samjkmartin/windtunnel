@@ -16,92 +16,90 @@ avgSize      = 5;   % default [] slots of values in avg
 avgUpdate    = 2;   % updates every [] seconds
 
 % Define Variables for memory
-voltage    = 0;                % current value read by arduino
+voltage    = 0;                
 step       = 0;                % Counts cranks
 voltHolder = zeros(1,avgSize); % Holds past voltage values 
 white      = [1 1 1];          % RGB value for white
 
-appWindow = uifigure('WindowState','maximized', ...
+fig = uifigure('WindowState','maximized', ...
     'Name','Plot App by Raaghav');
-grid = uigridlayout(appWindow,[6 6], ...
-    'BackgroundColor',[92 0 41]/255);
-grid.RowHeight   = {'1x','2x','2x','2x','2x','1x'};
-grid.ColumnWidth = {'1x','1x','1x','1x','1x','1x'};
+g = uigridlayout(fig,[6 6], 'BackgroundColor',[92 0 41]/255);
+g.RowHeight = {'1x','2x','2x','2x','2x','1x'};
+g.ColumnWidth = {'1x','1x','1x','1x','1x','1x'};
 
 % Plots to visualize data as its collected
 % Voltage versus steps
-axisVoltStep = uiaxes(grid);
-axisVoltStep.Layout.Row    = [2 5];
+axisVoltStep = uiaxes(g);
+axisVoltStep.Layout.Row = [2 5];
 axisVoltStep.Layout.Column = [1 2];
-axisVoltStep.Title.String  = 'Voltage Versus Steps';
+axisVoltStep.Title.String = 'Voltage Versus Steps';
 axisVoltStep.XLabel.String = 'Voltage (V)';
 axisVoltStep.YLabel.String = 'Steps (crank)';
 
-axisVoltStep.Title.Color   = white;
-axisVoltStep.XLabel.Color  = white;
-axisVoltStep.YLabel.Color  = white;
-axisVoltStep.XColor        = white;
-axisVoltStep.YColor        = white;
-
+axisVoltStep.Title.Color = white;
+axisVoltStep.XLabel.Color = white;
+axisVoltStep.YLabel.Color = white;
+axisVoltStep.XColor = white;
+axisVoltStep.YColor = white;
 % Water versus height
-axisWaterHeight = uiaxes(grid);
-axisWaterHeight.Layout.Row    = [2 5];
+axisWaterHeight = uiaxes(g);
+axisWaterHeight.Layout.Row = [2 5];
 axisWaterHeight.Layout.Column = [3 4];
-axisWaterHeight.Title.String  = 'Inches of Water Versus Height';
+axisWaterHeight.Title.String = 'Inches of Water Versus Height';
 axisWaterHeight.YLabel.String = 'Height (mm)';
 axisWaterHeight.XLabel.String = 'Water (in)';
 
-axisWaterHeight.Title.Color   = white;
-axisWaterHeight.XLabel.Color  = white;
-axisWaterHeight.YLabel.Color  = white;
-axisWaterHeight.XColor        = white;
-axisWaterHeight.YColor        = white;
+axisWaterHeight.Title.Color = white;
+axisWaterHeight.XLabel.Color = white;
+axisWaterHeight.YLabel.Color = white;
+axisWaterHeight.XColor = white;
+axisWaterHeight.YColor = white;
 
 % Velocity versus distance
-axisVelocityDistance = uiaxes(grid);
-axisVelocityDistance.Layout.Row    = [2 5];
+axisVelocityDistance = uiaxes(g);
+axisVelocityDistance.Layout.Row = [2 5];
 axisVelocityDistance.Layout.Column = [5 6];
-axisVelocityDistance.Title.String  = 'Normalized Velocity Versus Distance';
+axisVelocityDistance.Title.String = 'Normalized Velocity Versus Distance';
 axisVelocityDistance.XLabel.String = 'U/Uinf';
 axisVelocityDistance.YLabel.String = 'h/diameter';
 
-axisVelocityDistance.Title.Color   = white;
-axisVelocityDistance.XLabel.Color  = white;
-axisVelocityDistance.YLabel.Color  = white;
-axisVelocityDistance.XColor        = white;
-axisVelocityDistance.YColor        = white;
+axisVelocityDistance.Title.Color = white;
+axisVelocityDistance.XLabel.Color = white;
+axisVelocityDistance.YLabel.Color = white;
+axisVelocityDistance.XColor = white;
+axisVelocityDistance.YColor = white;
 
 % Interactable elements
 % Button to aquire the next datapoint and plot it
 recordButtonColor = [1 0 0];
-recordButton      = uibutton(grid, ...
+recordButton = uibutton(g, ...
     "Text","Record Next Point", ...
     "ButtonPushedFcn", @(src,event) recordButtonPushed(), ...
     "BackgroundColor", recordButtonColor);
-recordButton.Layout.Row    = 6;
+recordButton.Layout.Row = 6;
 recordButton.Layout.Column = 1;
 
 % Button that saves data to a csv
-saveButton = uibutton(grid, ...
+saveButton = uibutton(g, ...
     "Text","Save", ...
     "ButtonPushedFcn", @(src,event) saveButtonPushed(),...
     "BackgroundColor",[247 111 142]/255);
-saveButton.Layout.Row    = 6;
+saveButton.Layout.Row = 6;
 saveButton.Layout.Column = 5;
 
 % Button that ends live feed
-endButton = uibutton(grid, ...
+endButton = uibutton(g, ...
     "Text","End Live", ...
     "ButtonPushedFcn", @(src,event) endButtonPushed(), ...
     "BackgroundColor",[8 103 136]/255);
-endButton.Layout.Row    = 6;
+endButton.Layout.Row = 6;
 endButton.Layout.Column = 6;
 
 % Panel to display latest value
-valuePanel = uipanel(grid, ...
+valuePanel = uipanel(g, ...
     "Title","Latest Value", ...
     "BackgroundColor",[148 191 190]/255);
-valuePanel.Layout.Row    = 1;
+valuePanel.Layout.Row = 1;
 valuePanel.Layout.Column = 1;
 valuePanelValue = uilabel(valuePanel, ...
     "Text", 'waiting...', ...
@@ -110,10 +108,10 @@ valuePanelValue = uilabel(valuePanel, ...
 valuePanelValue.Position(3:4) = [80 44];
 
 % Panel to display live value
-livePanel = uipanel(grid, ...
+livePanel = uipanel(g, ...
     "Title","Live Value", ...
     "BackgroundColor",[148 191 190]/255);
-livePanel.Layout.Row    = 1;
+livePanel.Layout.Row = 1;
 livePanel.Layout.Column = 2;
 livePanelValue = uilabel(livePanel, ...
     "Text", 'waiting...', ...
@@ -122,10 +120,10 @@ livePanelValue = uilabel(livePanel, ...
 livePanelValue.Position(3:4) = [80 44];
 
 % Panel to display average value
-avgPanel = uipanel(grid, ...
+avgPanel = uipanel(g, ...
     "Title","Average Value", ...
     "BackgroundColor",[148 191 190]/255);
-avgPanel.Layout.Row    = 1;
+avgPanel.Layout.Row = 1;
 avgPanel.Layout.Column = 3;
 avgPanelValue = uilabel(avgPanel, ...
     "Text", 'waiting...', ...
@@ -134,28 +132,28 @@ avgPanelValue = uilabel(avgPanel, ...
 avgPanelValue.Position(3:4) = [80 44];
 
 % Dropdown menu that chooses steps taken with crank
-stepSelector = uidropdown(grid, ...
+stepSelector = uidropdown(g, ...
     'BackgroundColor',[172 247 193]/255);
-stepSelector.Layout.Row    = 1;
+stepSelector.Layout.Row = 1;
 stepSelector.Layout.Column = 6;
 stepSelector.Items = {'2', '1', '0.5'};
 stepSelector.Value = '2';
 
 % Field that allows you to change filename (first half)
-discType = uieditfield(grid, "Value", 'set disc type', ...
+discType = uieditfield(g, "Value", 'set disc type', ...
     'BackgroundColor',[247 111 142]/255);
 discType.Layout.Row = 6;
 discType.Layout.Column = 3;
 
 % Field that allows you to change filename (second half)
-stationType = uieditfield(grid, "Value", 'set station', ...
+stationType = uieditfield(g, "Value", 'set station', ...
     'BackgroundColor',[247 111 142]/255);
 stationType.Layout.Row = 6;
 stationType.Layout.Column = 4;
 
 % Field that allows you to change rolling avg length in seconds
-avgLength = uieditfield(grid, "numeric", ...
-    "Value", 0.5, ...
+avgLength = uieditfield(g, "numeric", ...
+    "Value", 'set default in code', ...
     "ValueChangedFcn",@(avgLength,event) avgLengthChanged(),...
     'BackgroundColor',[247 111 142]/255);
 avgLength.Layout.Row = 1;
@@ -207,9 +205,7 @@ end
         % Append the voltstep data to the cumulative data
         voltX     = [voltX, voltage];
         stepY     = [stepY, step];
-        % Store average value
         avgVoltX  = [avgVoltX, mean(voltHolder)];
-
         % Define inches of water and height in mm
         water     = voltage * m;
         height    = step * 3;
@@ -244,7 +240,7 @@ end
     end
 
     function saveButtonPushed()
-        data = [voltX(:), stepY(:), avgVoltX(:)];
+        data = [voltX(:), stepY(:)];
 
         fileName1  = discType.Value;
         fileName2  = stationType.Value;
@@ -266,6 +262,6 @@ end
     end
 
     function avgLengthChanged()
-        avgSize = avgLength.Value/refreshDelay;
+        avgSize = avgLength/refreshDelay;
     end
 end
