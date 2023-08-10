@@ -235,7 +235,8 @@ end
         end
 
         % Update latest value
-        valuePanelValue.Text = sprintf('%5.3f',voltage);
+        valuePanelValue.Text = sprintf(['Voltage is %5.3f' ...
+            '\n U/Uinf is %5.3f'],voltage,velocity);
 
         % Plot the cumulative data
         plot(axisVoltStep, voltX, stepY);
