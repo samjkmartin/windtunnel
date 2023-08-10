@@ -15,8 +15,10 @@ diameter = 50;
 
 % Adjustable Variables
 refreshDelay = 0.001; % live value is updated every [] seconds
-avgSize      = 1000;   % default [] slots of values in avg
 liveDelay = 0.1; % display live value every [] seconds
+avgDelay = 1; % Default number of seconds over which average voltage is calculated 
+avgSize = avgDelay/refreshDelay;   % default [] slots of values in avg
+
 % avgUpdate    = 2;   % updates every [] seconds
 
 % Define Variables for memory
@@ -157,13 +159,13 @@ stationType = uieditfield(grid, "Value", 'set station', ...
 stationType.Layout.Row = 6;
 stationType.Layout.Column = 4;
 
-% Field that allows you to change rolling avg length in seconds
-avgLength = uieditfield(grid, "numeric", ...
-    "Value", 0.5, ...
-    "ValueChangedFcn",@(avgLength,event) avgLengthChanged(),...
+% Field that allows you to change rolling avg time in seconds
+avgTime = uieditfield(grid, "numeric", ...
+    "Value", avgDelay, ...
+    "ValueChangedFcn",@(avgLength,event) avgTimeChanged(),...
     'BackgroundColor',[247 111 142]/255);
-avgLength.Layout.Row = 1;
-avgLength.Layout.Column = 4;
+avgTime.Layout.Row = 1;
+avgTime.Layout.Column = 4;
 
 
 % Initialize voltage - step plot data
@@ -179,15 +181,19 @@ heightY   = [];
 normVelocityX = [];
 normHeightY = [];
 
-% Arduino Attach
+% Arduino Attach – first string varies based on laptop and USB port used.
+% To find port info: Plug in Arduino -> Arduino App -> Tools -> Port
+% Raaghav right port: "/dev/cu.usbmodem2101"
+% Sam left port 
+% Sam right port
 a = arduino("/dev/cu.usbmodem2101", "Uno", Libraries = "I2C");
 
 % Configure Pins
 configurePin(a,'A0','AnalogInput');
-configurePin(a,'D3','DigitalOutput');
+% configurePin(a,'D3','DigitalOutput');
 
 % Generate 'random' data to read
-writePWMVoltage(a,'D3',3);
+% writePWMVoltage(a,'D3',3);
 
 stateLive   = 1;
 stateUpdate = 0;
@@ -273,7 +279,7 @@ end
         endButton.BackgroundColor = [252 207 149]/255;
     end
 
-    function avgLengthChanged()
-        avgSize = avgLength.Value/refreshDelay;
+    function avgTimeChanged()
+        avgSize = avgTime.Value/refreshDelay;
     end
 end
