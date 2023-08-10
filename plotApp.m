@@ -14,8 +14,9 @@ m = (water2-water1)/(digital2 - digital1);
 diameter = 50; 
 
 % Adjustable Variables
-refreshDelay = 0.1; % live value is updated every [] seconds
-avgSize      = 5;   % default [] slots of values in avg
+refreshDelay = 0.001; % live value is updated every [] seconds
+avgSize      = 1000;   % default [] slots of values in avg
+liveDelay = 0.1; % display live value every [] seconds
 % avgUpdate    = 2;   % updates every [] seconds
 
 % Define Variables for memory
@@ -60,19 +61,19 @@ axisWaterHeight.YLabel.Color  = white;
 axisWaterHeight.XColor        = white;
 axisWaterHeight.YColor        = white;
 
-% Velocity versus distance
-axisVelocityDistance = uiaxes(grid);
-axisVelocityDistance.Layout.Row    = [2 5];
-axisVelocityDistance.Layout.Column = [5 6];
-axisVelocityDistance.Title.String  = 'Normalized Velocity Versus Distance';
-axisVelocityDistance.XLabel.String = 'U/Uinf';
-axisVelocityDistance.YLabel.String = 'h/diameter';
+% Velocity versus height
+axisVelocityHeight = uiaxes(grid);
+axisVelocityHeight.Layout.Row    = [2 5];
+axisVelocityHeight.Layout.Column = [5 6];
+axisVelocityHeight.Title.String  = 'Normalized Velocity Versus Distance';
+axisVelocityHeight.XLabel.String = 'U/Uinf';
+axisVelocityHeight.YLabel.String = 'h/diameter';
 
-axisVelocityDistance.Title.Color   = white;
-axisVelocityDistance.XLabel.Color  = white;
-axisVelocityDistance.YLabel.Color  = white;
-axisVelocityDistance.XColor        = white;
-axisVelocityDistance.YColor        = white;
+axisVelocityHeight.Title.Color   = white;
+axisVelocityHeight.XLabel.Color  = white;
+axisVelocityHeight.YLabel.Color  = white;
+axisVelocityHeight.XColor        = white;
+axisVelocityHeight.YColor        = white;
 
 % Interactable elements
 % Button to aquire the next datapoint and plot it
@@ -175,8 +176,8 @@ waterX    = [];
 heightY   = [];
 
 % Initialize velocity - distance plot data
-velocityX = [];
-distanceY = [];
+normVelocityX = [];
+normHeightY = [];
 
 % Arduino Attach
 a = arduino("/dev/cu.usbmodem2101", "Uno", Libraries = "I2C");
@@ -189,15 +190,18 @@ configurePin(a,'D3','DigitalOutput');
 writePWMVoltage(a,'D3',3);
 
 stateLive   = 1;
-% stateUpdate = 0;
+stateUpdate = 0;
 while stateLive == 1
-    % stateUpdate = stateUpdate + refreshDelay;
+    stateUpdate = stateUpdate + refreshDelay;
     voltage             = readVoltage(a,'A0');
     voltHolder(1)          = [];
     voltHolder(avgSize)    = voltage;
-    livePanelValue.Text = sprintf('%5.3f',voltage);
-    avgPanelValue.Text  = sprintf('%5.3f',mean(voltHolder));
-    % stateUpdate = 0;
+
+    if stateUpdate >= liveDelay
+        livePanelValue.Text = sprintf('%5.3f',voltage);
+        avgPanelValue.Text  = sprintf('%5.3f',mean(voltHolder));
+        stateUpdate = 0;
+    end
 
     pause(refreshDelay);
 end
@@ -223,12 +227,12 @@ end
 
         % Normalized velocity and distance
         maxWater  = max(waterX);
-        velocity  = sqrt(water/maxWater);
-        distance  = height/diameter; 
+        normVelocity  = sqrt(water/maxWater);
+        normHeight  = height/diameter; 
 
         % Append the velocitydistance data to the cumulative data
-        velocityX = [velocityX, velocity];
-        distanceY = [distanceY, distance];
+        normVelocityX = [normVelocityX, normVelocity];
+        normHeightY = [normHeightY, normHeight];
 
         % change button color
         if recordButtonColor(1) == 0
@@ -239,16 +243,16 @@ end
 
         % Update latest value
         valuePanelValue.Text = sprintf(['Voltage is %5.3f' ...
-            '\n U/Uinf is %5.3f'],voltage,velocity);
+            '\n U/Uinf is %5.3f'],voltage,normVelocity);
 
         % Plot the cumulative data
         plot(axisVoltStep, avgVoltX, stepY);
         plot(axisWaterHeight, waterX, heightY)
-        plot(axisVelocityDistance, velocityX, distanceY)
+        plot(axisVelocityHeight, normVelocityX, normHeightY)
     end
 
     function saveButtonPushed()
-        data = [voltX(:), stepY(:), avgVoltX(:)];
+        data = [voltX(:), stepY(:), avgVoltX(:), waterX(:)];
 
         fileName1  = discType.Value;
         fileName2  = stationType.Value;
