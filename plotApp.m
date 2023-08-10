@@ -10,10 +10,13 @@ digital2 = 5;
 % Calibration slope
 m = (water2-water1)/(digital2 - digital1);
 
+% Disc diameter in mm
+diameter = 50; 
+
 % Adjustable Variables
 refreshDelay = 0.1; % live value is updated every [] seconds
 avgSize      = 5;   % default [] slots of values in avg
-avgUpdate    = 2;   % updates every [] seconds
+% avgUpdate    = 2;   % updates every [] seconds
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
@@ -186,15 +189,15 @@ configurePin(a,'D3','DigitalOutput');
 writePWMVoltage(a,'D3',3);
 
 stateLive   = 1;
-stateUpdate = 0;
+% stateUpdate = 0;
 while stateLive == 1
-    stateUpdate = stateUpdate + refreshDelay;
+    % stateUpdate = stateUpdate + refreshDelay;
     voltage             = readVoltage(a,'A0');
     voltHolder(1)          = [];
     voltHolder(avgSize)    = voltage;
     livePanelValue.Text = sprintf('%5.3f',voltage);
     avgPanelValue.Text  = sprintf('%5.3f',mean(voltHolder));
-    stateUpdate = 0;
+    % stateUpdate = 0;
 
     pause(refreshDelay);
 end
@@ -210,8 +213,8 @@ end
         % Store average value
         avgVoltX  = [avgVoltX, mean(voltHolder)];
 
-        % Define inches of water and height in mm
-        water     = voltage * m;
+        % Define inches of water (time-averaged) and height in mm
+        water     = mean(voltHolder) * m;
         height    = step * 3;
 
         % Append the waterheight data to the cumulative data
@@ -221,7 +224,7 @@ end
         % Normalized velocity and distance
         maxWater  = max(waterX);
         velocity  = sqrt(water/maxWater);
-        distance  = height/50;
+        distance  = height/diameter; 
 
         % Append the velocitydistance data to the cumulative data
         velocityX = [velocityX, velocity];
@@ -239,7 +242,7 @@ end
             '\n U/Uinf is %5.3f'],voltage,velocity);
 
         % Plot the cumulative data
-        plot(axisVoltStep, voltX, stepY);
+        plot(axisVoltStep, avgVoltX, stepY);
         plot(axisWaterHeight, waterX, heightY)
         plot(axisVelocityDistance, velocityX, distanceY)
     end
