@@ -11,15 +11,13 @@ digital2 = 5;
 m = (water2-water1)/(digital2 - digital1);
 
 % Disc diameter in mm
-diameter = 50; 
+diameter = 50;
 
 % Adjustable Variables
 refreshDelay = 0.001; % live value is updated every [] seconds
-liveDelay = 0.1; % display live value every [] seconds
-avgDelay = 1; % Default number of seconds over which average voltage is calculated 
-avgSize = avgDelay/refreshDelay;   % default [] slots of values in avg
-
-% avgUpdate    = 2;   % updates every [] seconds
+liveDelay    = 0.1; % display live value every [] seconds
+avgDelay     = 1; % Default number of seconds over which average voltage is calculated
+avgSize      = avgDelay/refreshDelay;   % default [] slots of values in avg
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
@@ -27,8 +25,11 @@ step       = 0;                % Counts cranks
 voltHolder = zeros(1,avgSize); % Holds past voltage values
 white      = [1 1 1];          % RGB value for white
 
+% Create uifigure
 appWindow = uifigure('WindowState','maximized', ...
     'Name','Plot App for Pressure Transducer by Raaghav');
+
+% Application grid for layout of app elements
 grid = uigridlayout(appWindow,[6 6], ...
     'BackgroundColor',[92 0 41]/255);
 grid.RowHeight   = {'1x','2x','2x','2x','2x','1x'};
@@ -140,10 +141,13 @@ avgPanelValue = uilabel(avgPanel, ...
 avgPanelValue.Position(3:4) = [80 44];
 
 % Dropdown menu that chooses steps taken with crank
-stepSelector = uidropdown(grid, ...
+stepPanel = uipanel(grid, ...
+    "Title","Step Selector", ...
+    "BackgroundColor",[172 247 193]/255);
+stepPanel.Layout.Row    = 1;
+stepPanel.Layout.Column = 6;
+stepSelector = uidropdown(stepPanel, ...
     'BackgroundColor',[172 247 193]/255);
-stepSelector.Layout.Row    = 1;
-stepSelector.Layout.Column = 6;
 stepSelector.Items = {'2', '1', '0.5'};
 stepSelector.Value = '2';
 
@@ -160,52 +164,55 @@ stationType.Layout.Row = 6;
 stationType.Layout.Column = 4;
 
 % Field that allows you to change rolling avg time in seconds
-avgTime = uieditfield(grid, "numeric", ...
+avgTimePanel = uipanel(grid, ...
+    "Title","Averaging Time (s)", ...
+    "BackgroundColor",[247 111 142]/255);
+avgTimePanel.Layout.Row = 1;
+avgTimePanel.Layout.Column = 4;
+avgTime = uieditfield(avgTimePanel, "numeric", ...
     "Value", avgDelay, ...
     "ValueChangedFcn",@(avgLength,event) avgTimeChanged(),...
     'BackgroundColor',[247 111 142]/255);
-avgTime.Layout.Row = 1;
-avgTime.Layout.Column = 4;
 
 
 % Initialize voltage - step plot data
-voltX     = [];
-stepY     = [];
-avgVoltX  = [];
+voltX         = [];
+stepY         = [];
+avgVoltX      = [];
 
 % Initialize water - height plot data
-waterX    = [];
-heightY   = [];
+waterX        = [];
+heightY       = [];
 
 % Initialize velocity - distance plot data
 normVelocityX = [];
-normHeightY = [];
+normHeightY   = [];
 
 % Arduino Attach – first string varies based on laptop and USB port used.
 % To find port info: Plug in Arduino -> Arduino App -> Tools -> Port
 % Raaghav right port: "/dev/cu.usbmodem2101"
 % Sam left port: "/dev/cu.usbmodem14101"
 % Sam right port "/dev/cu.usbmodem14201"
-a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
+a = arduino("/dev/cu.usbmodem2101", "Uno", Libraries = "I2C");
 
-% Configure Pins
+% Configure Pin
 configurePin(a,'A0','AnalogInput');
-% configurePin(a,'D3','DigitalOutput');
 
-% Generate 'random' data to read
-% writePWMVoltage(a,'D3',3);
+% Set up the KeyPressFcn for the figure
+set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress());
 
 stateLive   = 1;
 stateUpdate = 0;
 while stateLive == 1
     stateUpdate = stateUpdate + refreshDelay;
     voltage             = readVoltage(a,'A0');
-    voltHolder(1)          = [];
-    voltHolder(avgSize)    = voltage;
+    voltHolder(1)       = [];
+    voltHolder(avgSize) = voltage;
 
     if stateUpdate >= liveDelay
         livePanelValue.Text = sprintf('%5.3f',voltage);
         avgPanelValue.Text  = sprintf('%5.3f',mean(voltHolder));
+
         stateUpdate = 0;
     end
 
@@ -234,7 +241,7 @@ end
         % Normalized velocity and distance
         maxWater  = max(waterX);
         normVelocity  = sqrt(water/maxWater);
-        normHeight  = height/diameter; 
+        normHeight  = height/diameter;
 
         % Append the velocitydistance data to the cumulative data
         normVelocityX = [normVelocityX, normVelocity];
@@ -281,5 +288,22 @@ end
 
     function avgTimeChanged()
         avgSize = avgTime.Value/refreshDelay;
+    end
+
+    % Define the onKeyPress function
+    function onKeyPress()
+        keyPressed = event.Key;
+
+        % Check if the pressed key corresponds to 'a', 's', or 'd'
+        if strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd')
+            % Change the value in the dropdown based on the key
+            if strcmp(keyPressed, 'a')
+                stepSelector.Value = '2';
+            elseif strcmp(keyPressed, 's')
+                stepSelector.Value = '1';
+            elseif strcmp(keyPressed, 'd')
+                stepSelector.Value = '0.5';
+            end
+        end
     end
 end
