@@ -199,7 +199,7 @@ a = arduino("/dev/cu.usbmodem2101", "Uno", Libraries = "I2C");
 configurePin(a,'A0','AnalogInput');
 
 % Set up the KeyPressFcn for the figure
-set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress());
+set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress(src, event));
 
 stateLive   = 1;
 stateUpdate = 0;
@@ -291,11 +291,11 @@ end
     end
 
     % Define the onKeyPress function
-    function onKeyPress()
+    function onKeyPress(~,event)
         keyPressed = event.Key;
 
         % Check if the pressed key corresponds to 'a', 's', or 'd'
-        if strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd')
+        if strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd') || strcmp(keyPressed, 'space')
             % Change the value in the dropdown based on the key
             if strcmp(keyPressed, 'a')
                 stepSelector.Value = '2';
@@ -303,7 +303,9 @@ end
                 stepSelector.Value = '1';
             elseif strcmp(keyPressed, 'd')
                 stepSelector.Value = '0.5';
-            end
+            elseif strcmp(keyPressed, 'space')
+                recordButtonPushed()
+            end 
         end
     end
 end
