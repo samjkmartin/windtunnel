@@ -28,7 +28,7 @@ voltHolder = zeros(1,avgSize); % Holds past voltage values
 white      = [1 1 1];          % RGB value for white
 
 appWindow = uifigure('WindowState','maximized', ...
-    'Name','Plot App for Pressure Transducer by Raaghav');
+    'Name','Plot App by Raaghav');
 grid = uigridlayout(appWindow,[6 6], ...
     'BackgroundColor',[92 0 41]/255);
 grid.RowHeight   = {'1x','2x','2x','2x','2x','1x'};
@@ -185,8 +185,8 @@ normHeightY = [];
 % To find port info: Plug in Arduino -> Arduino App -> Tools -> Port
 % Raaghav right port: "/dev/cu.usbmodem2101"
 % Sam left port: "/dev/cu.usbmodem14101"
-% Sam right port "/dev/cu.usbmodem14201"
-a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
+% Sam right port 
+a = arduino("/dev/cu.usbmodem2101", "Uno", Libraries = "I2C");
 
 % Configure Pins
 configurePin(a,'A0','AnalogInput');
