@@ -14,7 +14,7 @@ m = (water2-water1)/(digital2 - digital1);
 diameter = 50;
 
 % Adjustable Variables
-refreshDelay = 0.001; % live value is updated every [] seconds
+refreshDelay = 0.01; % live value is updated every [] seconds
 liveDelay    = 0.1; % display live value every [] seconds
 avgDelay     = 1; % Default number of seconds over which average voltage is calculated
 avgSize      = avgDelay/refreshDelay;   % default [] slots of values in avg
