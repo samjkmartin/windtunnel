@@ -28,7 +28,8 @@ white      = [1 1 1];          % RGB value for white
 % Create uifigure
 appWindow = uifigure('WindowState','maximized', ...
     'Name','Plot App for Pressure Transducer by Raaghav');
-
+% Set universal font size
+fontsize(appWindow, 24, "points")
 % Application grid for layout of app elements
 grid = uigridlayout(appWindow,[6 6], ...
     'BackgroundColor',[92 0 41]/255);
@@ -239,18 +240,18 @@ end
         heightY   = [heightY, height];
 
         % Normalized velocity and distance
-        maxWater  = max(waterX);
-        normVelocity  = sqrt(water/maxWater);
-        normHeight  = height/diameter;
+        maxWater     = max(waterX);
+        normVelocity = sqrt(water/maxWater);
+        normHeight   = height/diameter;
 
         % Append the velocitydistance data to the cumulative data
         normVelocityX = [normVelocityX, normVelocity];
-        normHeightY = [normHeightY, normHeight];
+        normHeightY   = [normHeightY, normHeight];
 
         % change button color
         if recordButtonColor(1) == 0
         else
-            recordButtonColor = [(1-step/70) step/70 0];
+            recordButtonColor = [(1-step/75) step/75 0];
             recordButton.BackgroundColor = recordButtonColor;
         end
 
@@ -280,7 +281,7 @@ end
 
     function endButtonPushed()
         stateLive = 0;
-        endButton.Text = 'Live Ended';
+        endButton.Text      = 'Live Ended';
         livePanelValue.Text = 'Live Ended';
         avgPanelValue.Text  = 'Live Ended';
         endButton.BackgroundColor = [252 207 149]/255;
@@ -294,7 +295,7 @@ end
     function onKeyPress(~,event)
         keyPressed = event.Key;
 
-        % Check if the pressed key corresponds to 'a', 's', or 'd'
+        % Check if the pressed key corresponds to 'a', 's', 'd', or 'space'
         if strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd') || strcmp(keyPressed, 'space')
             % Change the value in the dropdown based on the key
             if strcmp(keyPressed, 'a')
