@@ -3,10 +3,10 @@
 % to be ignored
 % ex: convert("","",10,2,3,4)
 
-function convert(readfile,writefile,maxstation,varargin)
+function convert(readFile,writeFile,maxStation,varargin)
 % Script to get number of cranks and delta h from excel
 
-data     = readmatrix(readfile);
+data     = readmatrix(readFile);
 
 % Counter variables
 readCol1 = 1;
@@ -14,7 +14,7 @@ readCol2 = 6;
 writCol1 = 1;
 writCol2 = 2;
 
-for i = 1:maxstation
+for i = 1:maxStation
     if ismember(i,varargin)
     else
         stations(:,writCol1) = data(23:143,readCol1);
@@ -27,6 +27,6 @@ for i = 1:maxstation
     end
 end
 
-writematrix(stations,writefile)
+writematrix(stations,writeFile)
 
 end

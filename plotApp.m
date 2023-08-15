@@ -15,8 +15,8 @@ diameter = 50;
 
 % Adjustable Variables
 refreshDelay = 0.01; % live value is updated every [] seconds
-liveDelay    = 0.1; % display live value every [] seconds
-avgDelay     = 1; % Default number of seconds over which average voltage is calculated
+liveDelay    = 0.1;  % display live value every [] seconds
+avgDelay     = 1;    % Default number of seconds over which average voltage is calculated
 avgSize      = avgDelay/refreshDelay;   % default [] slots of values in avg
 
 % Define Variables for memory
@@ -28,8 +28,10 @@ white      = [1 1 1];          % RGB value for white
 % Create uifigure
 appWindow = uifigure('WindowState','maximized', ...
     'Name','Plot App for Pressure Transducer by Raaghav');
+
 % Set universal font size
 fontsize(appWindow, 24, "points")
+
 % Application grid for layout of app elements
 grid = uigridlayout(appWindow,[6 6], ...
     'BackgroundColor',[92 0 41]/255);
@@ -204,11 +206,24 @@ set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress(src, event));
 
 stateLive   = 1;
 stateUpdate = 0;
+
+time1 = now;
+pause(refreshdelay)
+time2 = now;
+timeDiff = time2-time1;
+
+
 while stateLive == 1
+    time3 = now;
+    time4 = time3 + timeDiff;
+    
+    while now < time4
+        voltage             = readVoltage(a,'A0');
+        voltHolder(1)       = [];
+        voltHolder(avgSize) = voltage;
+    end
+
     stateUpdate = stateUpdate + refreshDelay;
-    voltage             = readVoltage(a,'A0');
-    voltHolder(1)       = [];
-    voltHolder(avgSize) = voltage;
 
     if stateUpdate >= liveDelay
         livePanelValue.Text = sprintf('%5.3f',voltage);
@@ -216,8 +231,6 @@ while stateLive == 1
 
         stateUpdate = 0;
     end
-
-    pause(refreshDelay);
 end
 
     function recordButtonPushed()
