@@ -277,8 +277,6 @@ end
         plot(axisVoltStep, avgVoltX, stepY);
         plot(axisWaterHeight, waterX, heightY)
         plot(axisVelocityHeight, normVelocityX, normHeightY)
-        
-        voltHolder = zeros(avgSize);
     end
 
     function saveButtonPushed()
