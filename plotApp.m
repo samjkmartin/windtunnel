@@ -208,20 +208,21 @@ stateLive   = 1;
 stateUpdate = 0;
 
 time1 = now;
-pause(refreshdelay)
+pause(refreshDelay)
 time2 = now;
 timeDiff = time2-time1;
 
+timeSize = 10000;
+realTimes = zeros(1,timeSize); 
+timeCount = 1; 
 
 while stateLive == 1
     time3 = now;
     time4 = time3 + timeDiff;
-    
-    while now < time4
-        voltage             = readVoltage(a,'A0');
-        voltHolder(1)       = [];
-        voltHolder(avgSize) = voltage;
-    end
+
+    voltage             = readVoltage(a,'A0');
+    voltHolder(1)       = [];
+    voltHolder(avgSize) = voltage;
 
     stateUpdate = stateUpdate + refreshDelay;
 
@@ -231,6 +232,17 @@ while stateLive == 1
 
         stateUpdate = 0;
     end
+
+    while now < time4
+    end
+
+    time5 = now; 
+
+    timeCount = timeCount + 1; 
+    if(timeCount < timeSize)
+        realTimes(timeCount) = time5 - time4; 
+    end
+
 end
 
     function recordButtonPushed()
