@@ -239,7 +239,7 @@ while stateLive == 1
     time5 = now; 
 
     timeCount = timeCount + 1; 
-    if(timeCount < timeSize)
+    if(timeCount <= timeSize)
         realTimes(timeCount) = time5 - time4; 
     end
 
