@@ -1,5 +1,5 @@
 % Use function by typing in the command window
-% final input arguments would be station positions 
+% final input arguments would be station positions
 % to be ignored
 % ex: convert("","",10,2,3,4)
 
@@ -14,17 +14,19 @@ readCol2 = 6;
 writCol1 = 1;
 writCol2 = 2;
 
-for i = 1:maxStation
-    if ismember(i,varargin)
-    else
-        stations(:,writCol1) = data(23:143,readCol1);
-        stations(:,writCol2) = data(23:143,readCol2);
+excludeStations = cell2mat(varargin);
 
-        readCol1 = readCol1 + 9;
-        readCol2 = readCol2 + 9;
+for i = 1:maxStation
+    if ismember(i, excludeStations)
+    else
+        stations(:,writCol1) = data(24:144,readCol1);
+        stations(:,writCol2) = data(24:144,readCol2);
         writCol1 = writCol1 + 2;
         writCol2 = writCol2 + 2;
     end
+
+    readCol1 = readCol1 + 9;
+    readCol2 = readCol2 + 9;
 end
 
 writematrix(stations,writeFile)
