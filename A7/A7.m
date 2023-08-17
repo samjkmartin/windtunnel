@@ -30,7 +30,8 @@ title('Disc A7, x/D=2')
 xlabel('U/U_{infty}')
 ylabel('r/D')
 
-FDnorm = 0; 
+%% Drag Coefficient calculations
+FDnorm = 0; % placeholder for drag force normalized by Uinf and D
 i = 1; % this is here as a placeholder for later, when drag will be calculated for many stations at once
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 for j=1:length(uNorm)
