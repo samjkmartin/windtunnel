@@ -10,6 +10,7 @@ S = 20; % span in mm
 data = readmatrix("A7S2.csv");
 cranks = data(:,2); % number of cranks up from starting probe position
 pressure = data(:,4); % dynamic pressure in inches of water
+figure 
 plot(pressure, cranks);
 title('Pressure vs Cranks')
 xlabel('Pressure (in. H_2O)')
