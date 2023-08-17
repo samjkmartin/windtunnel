@@ -230,14 +230,13 @@ while stateLive == 1
         stateUpdate = 0;
     end
 
-    while now < time4
+    while now <= time4
     end
 end
 
     function recordButtonPushed()
-        % Define voltage and step
+        % Define voltage
         voltage   = readVoltage(a,'A0');
-        step      = step + str2double(stepSelector.Value);
 
         % Append the voltstep data to the cumulative data
         voltX     = [voltX, voltage];
@@ -278,7 +277,10 @@ end
         plot(axisWaterHeight, waterX, heightY)
         plot(axisVelocityHeight, normVelocityX, normHeightY)
         
-        voltHolder = zeros(avgSize);
+        voltHolder = zeros(avgSize,1);
+
+        % Move step forward
+        step      = step + str2double(stepSelector.Value);
     end
 
     function saveButtonPushed()
@@ -305,7 +307,7 @@ end
 
     function avgTimeChanged()
         avgSize = avgTime.Value/refreshDelay;
-        voltHolder = zeros(avgSize);
+        voltHolder = zeros(avgSize,1);
     end
 
     % Define the onKeyPress function
