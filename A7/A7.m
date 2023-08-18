@@ -7,36 +7,47 @@ D = 50; % diameter in mm
 R = D/2; % Disc radius
 S = 20; % span in mm
 
-data = readmatrix("A7S2.csv");
-cranks = data(:,2); % number of cranks up from starting probe position
-pressure = data(:,4); % dynamic pressure in inches of water
-figure 
-plot(pressure, cranks);
-title('Pressure vs Cranks')
-xlabel('Pressure (in. H_2O)')
-ylabel('Vertical position (cranks)')
+stations = [2:5];
 
-crankHeight = 3; % mm per crank
-crankOffset = 31; % crank location of the center of the wake
-r = crankHeight*(cranks-crankOffset); % vertical position in mm relative to the center of the disc
-rNorm = r/D; % r normalized by diameter
+for i=1:length(stations)
+    data = readmatrix(strcat('A7S',num2str(stations(i)),'.csv'));
+    cranks = data(:,2); % number of cranks up from starting probe position
+    pressure = data(:,4); % dynamic pressure in inches of water
+    % figure
+    % plot(pressure, cranks);
+    % title('Pressure vs Cranks')
+    % xlabel('Pressure (in. H_2O)')
+    % ylabel('Vertical position (cranks)')
 
-pInfty = max(pressure); % dynamic pressure far away from disc
-uNorm = sqrt(pressure/pInfty); % U/Uinfty
+    crankHeight = 3; % mm per crank
+    if stations(i)==4
+        crankOffset = 30;
+    else
+        crankOffset = 31; % crank location of the center of the wake
+    end
+    r = crankHeight*(cranks-crankOffset); % vertical position in mm relative to the center of the disc
+    rNorm = r/D; % r normalized by diameter
 
-figure
-plot(uNorm, rNorm); 
-title('Disc A7, x/D=2')
-xlabel('U/U_{infty}')
-ylabel('r/D')
+    pInfty = max(pressure); % dynamic pressure far away from disc
+    uNorm = sqrt(pressure/pInfty); % U/Uinfty
 
-hold on
-axval = axis;
-axis([axval(1:3) -axval(3)])
-plot(axval(1:2), [0 0], 'k:') % centerline
-plot(uNorm, -rNorm, ':b'); % flipped profile
+    % figure
+    subplot(1,length(stations),i)
+    plot(uNorm, rNorm);
+    title(strcat('Disc A7, x/D=',num2str(stations(i))))
+    xlabel('U/U_{infty}')
+    ylabel('r/D')
+    xlim([0.4 1])
+
+    hold on
+    axval = axis;
+    axis([axval(1:3) -axval(3)])
+    plot(axval(1:2), [0 0], 'k:') % centerline
+    plot(uNorm, -rNorm, ':b'); % flipped profile
+end
 
 %% Drag Coefficient calculations
+% FDnorm = zeros(1,length(stations)); 
 FDnorm = 0; % placeholder for drag force normalized by Uinf and D
 i = 1; % this is here as a placeholder for later, when drag will be calculated for many stations at once
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
