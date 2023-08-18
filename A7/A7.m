@@ -30,6 +30,12 @@ title('Disc A7, x/D=2')
 xlabel('U/U_{infty}')
 ylabel('r/D')
 
+hold on
+axval = axis;
+axis([axval(1:3) -axval(3)])
+plot(axval(1:2), [0 0], 'k:') % centerline
+plot(uNorm, -rNorm, ':b'); % flipped profile
+
 %% Drag Coefficient calculations
 FDnorm = 0; % placeholder for drag force normalized by Uinf and D
 i = 1; % this is here as a placeholder for later, when drag will be calculated for many stations at once
