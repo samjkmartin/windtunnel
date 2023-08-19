@@ -7,7 +7,13 @@ D = 50; % diameter in mm
 R = D/2; % Disc radius
 S = 20; % span in mm
 
-stations = [2:5];
+stations = [2:8];
+
+crankHeight = 3; % mm per crank
+crankOffsets = [31.25,30.5,29.5,30.5,33,34.25,34.25]; % to set position of r=0 for each disc
+
+FDnorm = zeros(1,length(stations)); % placeholder for drag force normalized by Uinf and D
+uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 
 for i=1:length(stations)
     data = readmatrix(strcat('A7S',num2str(stations(i)),'.csv'));
@@ -19,13 +25,7 @@ for i=1:length(stations)
     % xlabel('Pressure (in. H_2O)')
     % ylabel('Vertical position (cranks)')
 
-    crankHeight = 3; % mm per crank
-    if stations(i)==4
-        crankOffset = 30;
-    else
-        crankOffset = 31; % crank location of the center of the wake
-    end
-    r = crankHeight*(cranks-crankOffset); % vertical position in mm relative to the center of the disc
+    r = crankHeight*(cranks-crankOffsets(i)); % vertical position in mm relative to the center of the disc
     rNorm = r/D; % r normalized by diameter
 
     pInfty = max(pressure); % dynamic pressure far away from disc
@@ -38,27 +38,32 @@ for i=1:length(stations)
     xlabel('U/U_{infty}')
     ylabel('r/D')
     xlim([0.4 1])
+    ylim([-2 2])
 
     hold on
     axval = axis;
     axis([axval(1:3) -axval(3)])
     plot(axval(1:2), [0 0], 'k:') % centerline
     plot(uNorm, -rNorm, ':b'); % flipped profile
-end
 
-%% Drag Coefficient calculations
-% FDnorm = zeros(1,length(stations)); 
-FDnorm = 0; % placeholder for drag force normalized by Uinf and D
-i = 1; % this is here as a placeholder for later, when drag will be calculated for many stations at once
-uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
-for j=1:length(uNorm)
-    if uNorm(j) < uMax
-        FDnorm(i) = FDnorm(i) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+    % Drag Force calculations
+    for j=1:length(uNorm)
+        if uNorm(j) < uMax
+            FDnorm(i) = FDnorm(i) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+        end
     end
 end
+
+% Calculating drag coefficients from drag force
 FDnorm = 0.5*FDnorm; % because we integrated from -R to R instead of 0 to R, so we double-counted
 
 A = pi*(R^2 - (R-S)^2); % disc area, mm^2
 Anorm = A/D^2; % normalized disc area
 
-CD = 2*FDnorm/Anorm % Drag coefficient
+CD = 2*FDnorm/Anorm; % Drag coefficient
+
+figure
+plot(stations, CD, 'k*')
+title('Calculated drag coefficient of disc A7')
+xlabel('x/D')
+ylabel('C_D')
