@@ -12,7 +12,7 @@ lastStation = widthData/2;
 firstStation = 2; 
 %crankOffset = zeros(1,lastStation);
 % crank location of the center of the wake per station
-crankOffset = [46 50 52 47 44 47 53 40]/2;
+crankOffset = [56 56 57 57 58 57 59 56]/2;
 
 % Information about the disc/setup in mm
 diameter    = 50;
@@ -47,7 +47,7 @@ for j = 1:lastStation
     plotData(any(isnan(plotData),2),:) = []; 
     station = j + firstStation - 1;
     cleanData{:,2*j-1} = plotData(:,1);
-    cleanData{:,2*j}   = plotData(:,2);
+    cleanData{:,2*j}   = plotData(:,2); % cleanData now contains alternating vectors of (uNorm, rNorm) with NaNs removed. Each pair corresponds to a station. 
     % Create figure
     subplot(1,lastStation,j);
     scatter(plotData(:,1),plotData(:,2),50,[30 39 73]/255,"filled")
@@ -69,5 +69,8 @@ xlim([0.25 1])
 title("All Stations")
 xlabel('Normalized Velocity')
 ylabel('r/D')
+
+% Calculating drag coefficients
+
 
 % end
