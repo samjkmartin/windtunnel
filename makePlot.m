@@ -1,12 +1,18 @@
-% function makePlot(readFile,firstStation)
+% function makePlot(readFile,firstStation,crankOffset)
 % data = readmatrix(readFile);
 
-clc
-clear all
-close all
+clc; clear; close all;
 
 data = readmatrix("A6/A6.csv");
+
+widthData   = width(data);
+% Number of stations
+lastStation = widthData/2;
+
 firstStation = 2; 
+%crankOffset = zeros(1,lastStation);
+% crank location of the center of the wake per station
+crankOffset = [46 50 52 47 44 47 53 40]/2;
 
 % Information about the disc/setup in mm
 diameter    = 50;
@@ -14,20 +20,20 @@ radius      = diameter/2;
 span        = 20;
 crankHeight = 3; 
 
-% Number of stations
-lastStation = width(data)/2;
 
-rNorm   = zeros(length(data),lastStation);
-r = rNorm; 
-pressure = rNorm;
 
-c = linspace(1,10,length(data));
+rNorm       = zeros(length(data),lastStation);
+uNorm       = rNorm;
+r           = rNorm; 
+pressure    = rNorm;
 
-pcfig = figure;
+cleanData   = cell(1,widthData);
+
+pcfig             = figure;
 pcfig.WindowState = 'maximized';
 for j = 1:lastStation
-    crankOffset = 28; % crank location of the center of the wake
-    r = crankHeight*(data(:,2*j-1)-crankOffset); % vertical position in mm relative to the center of the disc
+    % vertical position in mm relative to the center of the disc
+    r = crankHeight*(data(:,2*j-1)-crankOffset(j)); 
     rNorm(:,j)    = r/diameter;
     pressure(:,j) = data(:,2*j);
     
@@ -36,14 +42,17 @@ for j = 1:lastStation
     maxPress = max(pressure(:,j));
 
     uNorm(:,j) = sqrt(pressure(:,j)/maxPress); 
-
+    
+    plotData = [uNorm(:,j),rNorm(:,j)];
+    plotData(any(isnan(plotData),2),:) = []; 
     station = j + firstStation - 1;
-
+    cleanData{:,2*j-1} = plotData(:,1);
+    cleanData{:,2*j}   = plotData(:,2);
     % Create figure
     subplot(1,lastStation,j);
-    scatter(uNorm(:,j),rNorm(:,j),50,[30 39 73]/255,"filled")
+    scatter(plotData(:,1),plotData(:,2),50,[30 39 73]/255,"filled")
     xlim([0.25 1])
-    % ylim([-inf inf])
+    ylim([-inf inf])
     title(sprintf('Station %i',station))
     xlabel('Normalized Velocity')
     ylabel('r/D')
