@@ -151,7 +151,7 @@ stepPanel.Layout.Row    = 1;
 stepPanel.Layout.Column = 6;
 stepSelector = uidropdown(stepPanel, ...
     'BackgroundColor',[172 247 193]/255);
-stepSelector.Items = {'2', '1', '0.5', '0.25'};
+stepSelector.Items = {'2', '1', '0.25'};
 stepSelector.Value = '2';
 
 % Field that allows you to change filename (first half)
@@ -319,10 +319,13 @@ end
             % Change the value in the dropdown based on the key
             if strcmp(keyPressed, 'a')
                 stepSelector.Value = '2';
+                disp(stepSelector.Value)
             elseif strcmp(keyPressed, 's')
                 stepSelector.Value = '1';
+                disp(stepSelector.Value)
             elseif strcmp(keyPressed, 'd')
-                stepSelector.Value = '0.5';
+                stepSelector.Value = '0.25';
+                disp(stepSelector.Value)
             elseif strcmp(keyPressed, 'space')
                 recordButtonPushed()
             end 
