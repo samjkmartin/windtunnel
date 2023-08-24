@@ -7,7 +7,7 @@ D = 50; % diameter in mm
 R = D/2; % Disc radius
 S = 20; % span in mm
 
-stations = [1,2,4,6]';
+stations = [1,2,4,6,8]';
 
 crankHeight = 3; % mm per crank
 crankOffsets = zeros(length(stations),1); %[33.5,32.5,32.5,34.5,33,34.25,34.25]; % to set position of r=0 for each disc
