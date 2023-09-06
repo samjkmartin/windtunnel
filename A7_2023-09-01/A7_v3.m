@@ -29,7 +29,7 @@ for i=1:length(stations)
     r = crankHeight*(cranks-crankOffsets(i)); % vertical position in mm relative to the center of the disc
     rNorm = r/D; % r normalized by diameter
 
-    pInfty = max(pressure); % dynamic pressure far away from disc
+    pInfty = pressure(1); %max(pressure); % dynamic pressure far away from disc
     uNorm = sqrt(pressure/pInfty); % U/Uinfty
 
     subplot(1,length(stations),i)
@@ -38,7 +38,7 @@ for i=1:length(stations)
     xlabel('U/U_{infty}')
     ylabel('r/D')
     xlim([0.4 1])
-    ylim([-2 2])
+    ylim([-1.5 1.5])
 
     hold on
     axval = axis;
