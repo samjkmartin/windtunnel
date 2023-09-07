@@ -17,11 +17,11 @@ xlabel('Pressure (in. H_2O)')
 ylabel('Vertical position (cranks)')
 
 crankHeight = 3; % mm per crank
-crankOffset = 31; % crank location of the center of the wake
+crankOffset = 34; % crank location of the center of the wake
 r = crankHeight*(cranks-crankOffset); % vertical position in mm relative to the center of the disc
 rNorm = r/D; % r normalized by diameter
 
-pInfty = max(pressure); % dynamic pressure far away from disc
+pInfty = pressure(1); % dynamic pressure far away from disc
 uNorm = sqrt(pressure/pInfty); % U/Uinfty
 
 figure
@@ -29,5 +29,6 @@ plot(uNorm, rNorm);
 title('Empty Tunnel, x/D=2')
 xlabel('U/U_{infty}')
 ylabel('r/D')
+ylim([-2,2])
 
 emptyCranksPressure = [cranks, pressure]; 
