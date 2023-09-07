@@ -19,8 +19,8 @@ excludeStations = cell2mat(varargin);
 for i = 1:maxStation
     if ismember(i, excludeStations)
     else
-        stations(:,writCol1) = data(24:174,readCol1);
-        stations(:,writCol2) = data(24:174,readCol2);
+        stations(:,writCol1) = data(24:172,readCol1);
+        stations(:,writCol2) = data(24:172,readCol2);
         writCol1 = writCol1 + 2;
         writCol2 = writCol2 + 2;
     end
