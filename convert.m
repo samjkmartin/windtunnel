@@ -1,6 +1,6 @@
 % Use function by typing in the command window
-% final input arguments would be station positions
-% to be ignored
+% final input arguments would be 
+% station positions to be ignored
 % ex: convert("","",11,2,3,4)
 
 function convert(readFile,writeFile,maxStation,varargin)

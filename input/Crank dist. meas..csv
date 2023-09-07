@@ -1,0 +1,14 @@
+Var1,Var2,Var3,Var4,Var5
+12-Apr-2023,NaN,NaN,45030,NaN
+Measurements using caliper. Top of caliper head resting on the bottom of the wind tunnel. Other caliper pincer resting on the upper face of the horizontal section of the pitot tube.,NaN,NaN,NaN,NaN
+Cranking up,NaN,NaN,NaN,NaN
+Lower measurement mm,11.68,20.69,26.58,16.2
+Estimated distance that we will measure for 40 cranks mm,101.6,NaN,NaN,NaN
+Number of cranks,40,30,50,50
+Upper measurement mm,131.53,109.97,176.14,150.8
+Distance traveled mm,119.85,89.28,149.56,134.6
+Distance per crank mm,2.99625,2.976,2.9912,2.692
+Distance per crank inches,0.1179625984,0.1171653543,0.1177637795,0.105984252
+3.00 mm per crank in inches,0.1181102362,0.1181102362,0.1181102362,0.1181102362
+,NaN,NaN,NaN,NaN
+Conclusion: Greg was wrong. The actual vertical distance per crank is 3.0 mm.,NaN,NaN,NaN,NaN
