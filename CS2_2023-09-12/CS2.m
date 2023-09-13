@@ -44,6 +44,8 @@ crankOffsets = [33.5,33.5,33.5,33.5]; % to set position of r=0 for each disc
 FDnorm = zeros(length(stations),1); % placeholder for drag force normalized by Uinf and D
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 
+Drag4 = zeros(6,1); % drag force from different measurements at Station 4
+
 figure
 for i=1:length(stations)
     data = readmatrix(strcat('CS2S',num2str(stations(i)),'.csv'));
@@ -61,15 +63,15 @@ for i=1:length(stations)
     pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
     uNorm = sqrt(pressure/pInfty); % U/Uinfty
 
-    subplot(1,length(stations),i)
-    hold on
-    plot(uNorm, rNorm)
-    plot(eval(strcat('U',num2str(stations(i)))),eval(strcat('R',num2str(stations(i)))))
-    title(strcat('Disc CS2, x/D=',num2str(stations(i))))
-    xlabel('U/U_{infty}')
-    ylabel('r/D')
-    % xlim([0.2 inf])
-    ylim([-2.25 2.25])
+    % subplot(1,length(stations),i)
+    % hold on
+    % plot(uNorm, rNorm)
+    % plot(eval(strcat('U',num2str(stations(i)))),eval(strcat('R',num2str(stations(i)))))
+    % title(strcat('Disc CS2, x/D=',num2str(stations(i))))
+    % xlabel('U/U_{infty}')
+    % ylabel('r/D')
+    % % xlim([0.2 inf])
+    % ylim([-2.25 2.25])
 
     % axval = axis;
     % axis([axval(1:3) -axval(3)])
@@ -84,6 +86,10 @@ for i=1:length(stations)
     end
 
     if stations(i) == 4
+        Drag4(1) = FDnorm(i); 
+        plot(uNorm, rNorm)
+        hold on
+        
         data = readmatrix(strcat('CS2S4v2.csv'));
         cranks = data(:,2); % number of cranks up from starting probe position
         pressure = data(:,4); % dynamic pressure in inches of water
@@ -95,7 +101,92 @@ for i=1:length(stations)
         uNorm = sqrt(pressure/pInfty); % U/Uinfty
 
         plot(uNorm, rNorm)
-        legend('Our data', 'Caromody', 'Tweaked probe')
+
+        for j=1:length(uNorm)
+            if uNorm(j) < uMax
+                Drag4(2) = Drag4(2) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+            end
+        end
+
+        data = readmatrix(strcat('CS2S4-9-13.csv'));
+        cranks = data(:,2); % number of cranks up from starting probe position
+        pressure = data(:,4); % dynamic pressure in inches of water
+
+        r = crankHeight*(cranks-35.5); % vertical position in mm relative to the center of the disc
+        rNorm = r/D; % r normalized by diameter
+
+        pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+        uNorm = sqrt(pressure/pInfty); % U/Uinfty
+
+        plot(uNorm, rNorm)
+        hold on
+
+        for j=1:length(uNorm)
+            if uNorm(j) < uMax
+                Drag4(3) = Drag4(3) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+            end
+        end
+
+        data = readmatrix(strcat('CS2S4-9-13v2.csv'));
+        cranks = data(:,2); % number of cranks up from starting probe position
+        pressure = data(:,4); % dynamic pressure in inches of water
+
+        r = crankHeight*(cranks-35.5); % vertical position in mm relative to the center of the disc
+        rNorm = r/D; % r normalized by diameter
+
+        pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+        uNorm = sqrt(pressure/pInfty); % U/Uinfty
+
+        plot(uNorm, rNorm)
+
+        for j=1:length(uNorm)
+            if uNorm(j) < uMax
+                Drag4(4) = Drag4(4) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+            end
+        end
+
+        data = readmatrix(strcat('CS2S4-9-13v3_fullDoubleCrank.csv'));
+        cranks = data(:,2); % number of cranks up from starting probe position
+        pressure = data(:,4); % dynamic pressure in inches of water
+
+        r = crankHeight*(cranks-35.5); % vertical position in mm relative to the center of the disc
+        rNorm = r/D; % r normalized by diameter
+
+        pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+        uNorm = sqrt(pressure/pInfty); % U/Uinfty
+
+        for j=1:length(uNorm)
+            if uNorm(j) < uMax
+                Drag4(5) = Drag4(5) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+            end
+        end
+
+        plot(uNorm, rNorm)
+
+        data = readmatrix(strcat('CS2S4-9-13v4.csv'));
+        cranks = data(:,2); % number of cranks up from starting probe position
+        pressure = data(:,4); % dynamic pressure in inches of water
+
+        r = crankHeight*(cranks-35.5); % vertical position in mm relative to the center of the disc
+        rNorm = r/D; % r normalized by diameter
+
+        pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+        uNorm = sqrt(pressure/pInfty); % U/Uinfty
+
+        for j=1:length(uNorm)
+            if uNorm(j) < uMax
+                Drag4(6) = Drag4(6) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+            end
+        end
+
+        plot(uNorm, rNorm)
+        % legend('Our data', 'Caromody', 'Tweaked probe', 'Re-centered')
+        legend('Our data', 'Tweaked probe', '9/13 v1', 'againV2', 'againV3 2cranks', 'againV4')
+        % legend('9/13 v1', 'v2', 'v3_2cranks', 'v4')
+        title(strcat('Disc CS2, x/D=',num2str(stations(i))))
+        xlabel('U/U_{infty}')
+        ylabel('r/D')
+        ylim([-1.75 1.75])
 
         % axval = axis;
         % axis([axval(1:3) -axval(3)])
@@ -113,6 +204,36 @@ CD = 2*FDnorm/Anorm; % Drag coefficient
 
 figure
 plot(stations, CD, 'k*')
-title('Calculated drag coefficient of disc A7')
+title('Calculated drag coefficient of disc CS2')
 xlabel('x/D')
 ylabel('C_D')
+
+Drag4 = 0.5*Drag4; 
+CD4 = 2*Drag4/Anorm; 
+
+figure
+plot(CD4, 'k*')
+title('C_D of disc CS2 at Station 4 measured multiple times')
+xlabel('x/D')
+ylabel('C_D')
+
+data = readmatrix(strcat('CS2S6-9-13.csv'));
+cranks = data(:,2); % number of cranks up from starting probe position
+pressure = data(:,4); % dynamic pressure in inches of water
+
+r = crankHeight*(cranks-35.5); % vertical position in mm relative to the center of the disc
+rNorm = r/D; % r normalized by diameter
+
+pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+uNorm = sqrt(pressure/pInfty); % U/Uinfty
+
+Drag6 = [0;0]; 
+for j=1:length(uNorm)
+    if uNorm(j) < uMax
+        Drag6(2) = Drag6(2) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+    end
+end
+
+Drag6 = Drag6/2;
+Drag6(1) = FDnorm(3);
+CD6 = 2*Drag6/Anorm
