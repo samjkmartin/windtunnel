@@ -68,20 +68,38 @@ for i=1:length(stations)
     title(strcat('Disc CS2, x/D=',num2str(stations(i))))
     xlabel('U/U_{infty}')
     ylabel('r/D')
-    xlim([0.2 inf])
-    ylim([-2 2])
+    % xlim([0.2 inf])
+    ylim([-2.25 2.25])
 
-    hold on
-    axval = axis;
-    axis([axval(1:3) -axval(3)])
-    plot(axval(1:2), [0 0], 'k:') % centerline
-    plot(uNorm, -rNorm, ':b'); % flipped profile
+    % axval = axis;
+    % axis([axval(1:3) -axval(3)])
+    % plot(axval(1:2), [0 0], 'k:') % centerline
+    % plot(uNorm, -rNorm, ':b'); % flipped profile
 
     % Drag Force calculations
     for j=1:length(uNorm)
         if uNorm(j) < uMax
             FDnorm(i) = FDnorm(i) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
         end
+    end
+
+    if stations(i) == 4
+        data = readmatrix(strcat('CS2S4v2.csv'));
+        cranks = data(:,2); % number of cranks up from starting probe position
+        pressure = data(:,4); % dynamic pressure in inches of water
+
+        r = crankHeight*(cranks-35.5); % vertical position in mm relative to the center of the disc
+        rNorm = r/D; % r normalized by diameter
+
+        pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+        uNorm = sqrt(pressure/pInfty); % U/Uinfty
+
+        plot(uNorm, rNorm)
+        legend('Our data', 'Caromody', 'Tweaked probe')
+
+        % axval = axis;
+        % axis([axval(1:3) -axval(3)])
+        % plot(uNorm, -rNorm, ':b'); % flipped profile
     end
 end
 
