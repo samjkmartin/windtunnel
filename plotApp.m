@@ -196,7 +196,7 @@ normHeightY   = [];
 % Raaghav right port: "/dev/cu.usbmodem2101"
 % Sam left port: "/dev/cu.usbmodem14101"
 % Sam right port "/dev/cu.usbmodem14201"
-a = arduino("/dev/cu.usbmodem2101", "Uno", Libraries = "I2C");
+a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
 
 % Configure Pin
 configurePin(a,'A0','AnalogInput');
