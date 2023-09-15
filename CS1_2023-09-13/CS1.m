@@ -51,11 +51,6 @@ for i=1:length(stations)
     data = readmatrix(strcat('CS1S',num2str(stations(i)),'.csv'));
     cranks = data(:,2); % number of cranks up from starting probe position
     pressure = data(:,4); % dynamic pressure in inches of water
-    % figure
-    % plot(pressure, cranks);
-    % title('Pressure vs Cranks')
-    % xlabel('Pressure (in. H_2O)')
-    % ylabel('Vertical position (cranks)')
 
     r = crankHeight*(cranks-crankOffsets(i)); % vertical position in mm relative to the center of the disc
     rNorm = r/D; % r normalized by diameter
@@ -84,6 +79,29 @@ for i=1:length(stations)
             FDnorm(i) = FDnorm(i) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
         end
     end
+
+    if stations(i)==4
+        data = readmatrix(strcat('CS1S4-9-15.csv'));
+        cranks = data(:,2); % number of cranks up from starting probe position
+        pressure = data(:,4); % dynamic pressure in inches of water
+
+        r = crankHeight*(cranks-crankOffsets(i)); % vertical position in mm relative to the center of the disc
+        rNorm = r/D; % r normalized by diameter
+
+        pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+        uNorm = sqrt(pressure/pInfty); % U/Uinfty
+
+        plot(uNorm, rNorm)
+
+        Drag4 = 0; 
+        % Drag Force calculations
+        for j=1:length(uNorm)
+            if uNorm(j) < uMax
+                Drag4 = Drag4 + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
+            end
+        end
+    end
+
 end
 
 % Calculating drag coefficients from drag force
@@ -99,3 +117,6 @@ plot(stations, CD, 'k*')
 title('Calculated drag coefficient of disc CS2')
 xlabel('x/D')
 ylabel('C_D')
+
+Drag4 = Drag4/2; 
+CD4 = 2*Drag4/Anorm
