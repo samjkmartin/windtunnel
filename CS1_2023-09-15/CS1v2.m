@@ -36,10 +36,10 @@ D = 50; % diameter in mm
 R = D/2; % Disc radius
 S = 25; % span in mm
 
-stations = [4:9];
+stations = [3:9];
 
 crankHeight = 3; % mm per crank
-crankOffsets = [36, 36, 36.5, 36, 36, 36]; % to set position of r=0 for each disc
+crankOffsets = [36, 36, 36, 36.5, 36, 36, 36]; % to set position of r=0 for each disc
 
 FDnorm = zeros(length(stations),1); % placeholder for drag force normalized by Uinf and D
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
@@ -62,12 +62,13 @@ for i=1:length(stations)
     hold on
     plot(uNorm, rNorm)
     if stations(i) == (3||4||6||9)
+        disp('hi');
         plot(eval(strcat('U',num2str(stations(i)))),eval(strcat('R',num2str(stations(i)))))
     end
     title(strcat('Disc CS2, x/D=',num2str(stations(i))))
     xlabel('U/U_{infty}')
     ylabel('r/D')
-    % xlim([0.2 inf])
+    xlim([0.3 inf])
     ylim([-2.25 2.25])
 
     axval = axis;
