@@ -1,6 +1,6 @@
 clc;
 clear all;
-% close all;
+close all;
 
 % Information about the disc
 D = 50; % diameter in mm
