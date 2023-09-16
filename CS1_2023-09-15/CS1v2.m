@@ -44,8 +44,6 @@ crankOffsets = [36, 36, 36, 36.5, 36, 36, 36]; % to set position of r=0 for each
 FDnorm = zeros(length(stations),1); % placeholder for drag force normalized by Uinf and D
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 
-Drag4 = zeros(6,1); % drag force from different measurements at Station 4
-
 figure
 for i=1:length(stations)
     data = readmatrix(strcat('CS1S',num2str(stations(i)),'.csv'));
