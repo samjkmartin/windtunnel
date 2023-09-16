@@ -61,14 +61,13 @@ for i=1:length(stations)
     subplot(1,length(stations),i)
     hold on
     plot(uNorm, rNorm)
-    if stations(i) == (3||4||6||9)
-        disp('hi');
+    if ismember(stations(i),[3 4 6 9])
         plot(eval(strcat('U',num2str(stations(i)))),eval(strcat('R',num2str(stations(i)))))
     end
     title(strcat('Disc CS2, x/D=',num2str(stations(i))))
     xlabel('U/U_{infty}')
     ylabel('r/D')
-    xlim([0.3 inf])
+    % xlim([0.25 inf])
     ylim([-2.25 2.25])
 
     axval = axis;
