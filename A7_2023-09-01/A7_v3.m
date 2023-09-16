@@ -37,7 +37,7 @@ for i=1:length(stations)
     title(strcat('Disc A7, x/D=',num2str(stations(i))))
     xlabel('U/U_{infty}')
     ylabel('r/D')
-    xlim([0.4 1])
+    xlim([0.6 1])
     ylim([-1.5 1.5])
 
     hold on

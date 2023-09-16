@@ -65,7 +65,7 @@ for i=1:length(stations)
     title(strcat('Disc CS2, x/D=',num2str(stations(i))))
     xlabel('U/U_{infty}')
     ylabel('r/D')
-    % xlim([0.25 inf])
+    xlim([0.25 inf])
     ylim([-2.25 2.25])
 
     axval = axis;
