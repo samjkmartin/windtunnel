@@ -17,27 +17,24 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 
 figure
 for i=1:length(stations)
-    data = readmatrix(strcat('CS1S',num2str(stations(i)),'.csv'));
+    data = readmatrix(strcat('A5S',num2str(stations(i)),'.csv'));
     cranks = data(:,2); % number of cranks up from starting probe position
     pressure = data(:,4); % dynamic pressure in inches of water
 
     r = crankHeight*(cranks-crankOffsets(i)); % vertical position in mm relative to the center of the disc
     rNorm = r/D; % r normalized by diameter
 
-    pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+    pInfty = pressure(1); %pressure(1); %max(pressure); % dynamic pressure far away from disc
     uNorm = sqrt(pressure/pInfty); % U/Uinfty
 
     subplot(1,length(stations),i)
     hold on
     plot(uNorm, rNorm)
-    if ismember(stations(i),[3 4 6 9])
-        plot(eval(strcat('U',num2str(stations(i)))),eval(strcat('R',num2str(stations(i)))))
-    end
-    title(strcat('Disc CS2, x/D=',num2str(stations(i))))
+    title(strcat('Disc A5, x/D=',num2str(stations(i))))
     xlabel('U/U_{infty}')
     ylabel('r/D')
-    xlim([0.25 inf])
-    ylim([-2.25 2.25])
+    xlim([0.4 inf])
+    ylim([-1.5 1.5])
 
     axval = axis;
     axis([axval(1:3) -axval(3)])
@@ -63,6 +60,6 @@ CD = 2*FDnorm/Anorm; % Drag coefficient
 
 figure
 plot(stations, CD, 'k*')
-title('Calculated drag coefficient of disc CS2')
+title('Calculated drag coefficient of disc A5')
 xlabel('x/D')
 ylabel('C_D')
