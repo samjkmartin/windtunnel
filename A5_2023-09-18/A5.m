@@ -7,10 +7,12 @@ D = 50; % diameter in mm
 R = D/2; % Disc radius
 S = 10; % span in mm
 
-stations = 1:4; %[1:9];
+stations = 1:4; 
 
 crankHeight = 3; % mm per crank
-crankOffsets = [36,35,34.75,34.25]; %[36, 36, 36, 36, 36, 36.5, 36, 36, 36]; % to set position of r=0 for each disc
+% to set position of r=0 for each disc: 
+% crankOffsets = [35.75,34.5,34,33.25]; % centers aligned
+crankOffsets = [36.25,35.5,35.5,35.25]; % outer edges aligned
 
 FDnorm = zeros(length(stations),1); % placeholder for drag force normalized by Uinf and D
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
@@ -33,7 +35,7 @@ for i=1:length(stations)
     title(strcat('Disc A5, x/D=',num2str(stations(i))))
     xlabel('U/U_{infty}')
     ylabel('r/D')
-    xlim([0.4 inf])
+    xlim([0.5 inf])
     ylim([-1.5 1.5])
 
     axval = axis;
