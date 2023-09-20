@@ -36,7 +36,7 @@ for j = 1:numStations
     
     pressure(pressure==0) = nan;
     
-    maxPress = max(pressure(:,j));
+    maxPress = max(pressure(:,j)); % REARRANGE CODE TO GET CLEAN DATA FIRST SO THAT WE CAN USE maxPress = pressure(1,j). Right now, there are NaNs in the 1 position. 
 
     uNorm(:,j) = sqrt(pressure(:,j)/maxPress); 
     
