@@ -7,18 +7,18 @@ D = 50; % diameter in mm
 R = D/2; % Disc radius
 S = 10; % span in mm
 
-stations = [4]; 
+stations = [4,4]; 
 
 crankHeight = 3; % mm per crank
 % to set position of r=0 for each disc: 
-crankOffsets = [33.25]; % outer edges aligned
+crankOffsets = [33.25,30.75]; % outer edges aligned
 
 FDnorm = zeros(length(stations),1); % placeholder for drag force normalized by Uinf and D
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 
 figure
 for i=1:length(stations)
-    data = readmatrix(strcat('A5S',num2str(stations(i)),'.csv'));
+    data = readmatrix(strcat('A5S',num2str(stations(i)),'v',num2str(i+3),'.csv'));
     cranks = data(:,2); % number of cranks up from starting probe position
     pressure = data(:,4); % dynamic pressure in inches of water
 
@@ -39,7 +39,7 @@ for i=1:length(stations)
 
     axval = axis;
     axis([axval(1:3) -axval(3)])
-    plot(axval(1:2), [0 0], 'k:') % centerline
+    plot(axval(1:2), [0 0], ':k') % centerline
     plot(uNorm, -rNorm, ':b'); % flipped profile
 
     % Drag Force calculations
