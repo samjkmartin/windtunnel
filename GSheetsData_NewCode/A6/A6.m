@@ -11,7 +11,7 @@ numStations = widthData/2;
 
 firstStation = 2; 
 % crank location of the center of the wake per station
-crankOffset = [55.5 57.5 57 57 58 58 60 56]/2;
+crankOffset = [55.75 57.5 57.25 57.25 58.25 58 60 56]/2;
 
 % Information about the disc/setup in mm
 D = 50; % disc diameter
