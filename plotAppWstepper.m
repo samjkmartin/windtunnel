@@ -1,4 +1,4 @@
-function plotAppWcmdZ
+function plotApp
 
 % Calibration points:
 water1   = 0;
@@ -315,7 +315,7 @@ end
         keyPressed = event.Key;
 
         % Check if the pressed key corresponds to 'a', 's', 'd', or 'space'
-        if strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd') || strcmp(keyPressed, 'z') || strcmp(keyPressed, 'space')
+        if strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd') || strcmp(keyPressed, 'space')
             % Change the value in the dropdown based on the key
             if strcmp(keyPressed, 'a')
                 stepSelector.Value = '2';
@@ -328,10 +328,7 @@ end
                 disp(stepSelector.Value)
             elseif strcmp(keyPressed, 'space')
                 recordButtonPushed()
-            elseif strcmp(keyPressed, 'z')
-                stepSelector.Value = '0.5';
-                disp(stepSelector.Value)
-            end
+            end 
         end
     end
 end
