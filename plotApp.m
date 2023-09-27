@@ -224,11 +224,8 @@ while stateLive == 1
 
         if voltHolder(1) == 0
             avgPanelValue.BackgroundColor = [0.85 .25 .4];
-            % wait state being true (=1) means you should wait
-            waitState = 1;
         else
             avgPanelValue.BackgroundColor = [0.25 .8 .4];
-            waitState = 0;
         end
         stateUpdate = 0;
     end
@@ -238,7 +235,7 @@ while stateLive == 1
 end
 
     function recordButtonPushed()
-        if waitState == 0
+        if avgPanelValue.BackgroundColor == [0.25 .8 .4]
             % Define voltage
             voltage   = readVoltage(a,'A0');
 
