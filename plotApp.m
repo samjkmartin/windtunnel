@@ -224,8 +224,11 @@ while stateLive == 1
 
         if voltHolder(1) == 0
             avgPanelValue.BackgroundColor = [0.85 .25 .4];
+            % wait state being true (=1) means you should wait
+            waitState = 1;
         else
             avgPanelValue.BackgroundColor = [0.25 .8 .4];
+            waitState = 0;
         end
         stateUpdate = 0;
     end
@@ -235,52 +238,56 @@ while stateLive == 1
 end
 
     function recordButtonPushed()
-        % Define voltage
-        voltage   = readVoltage(a,'A0');
+        if waitState == 0
+            % Define voltage
+            voltage   = readVoltage(a,'A0');
 
-        % Append the voltstep data to the cumulative data
-        voltX     = [voltX, voltage];
-        stepY     = [stepY, step];
-        % Store average value
-        avgVoltX  = [avgVoltX, mean(voltHolder)];
+            % Append the voltstep data to the cumulative data
+            voltX     = [voltX, voltage];
+            stepY     = [stepY, step];
+            % Store average value
+            avgVoltX  = [avgVoltX, mean(voltHolder)];
 
-        % Define inches of water (time-averaged) and height in mm
-        water     = mean(voltHolder) * m;
-        height    = step * 3;
+            % Define inches of water (time-averaged) and height in mm
+            water     = mean(voltHolder) * m;
+            height    = step * 3;
 
-        % Append the waterheight data to the cumulative data
-        waterX    = [waterX, water];
-        heightY   = [heightY, height];
+            % Append the waterheight data to the cumulative data
+            waterX    = [waterX, water];
+            heightY   = [heightY, height];
 
-        % Normalized velocity and distance
-        maxWater     = max(waterX);
-        normVelocity = sqrt(water/maxWater);
-        normHeight   = height/diameter;
+            % Normalized velocity and distance
+            maxWater     = max(waterX);
+            normVelocity = sqrt(water/maxWater);
+            normHeight   = height/diameter;
 
-        % Append the velocitydistance data to the cumulative data
-        normVelocityX = [normVelocityX, normVelocity];
-        normHeightY   = [normHeightY, normHeight];
+            % Append the velocitydistance data to the cumulative data
+            normVelocityX = [normVelocityX, normVelocity];
+            normHeightY   = [normHeightY, normHeight];
 
-        % change button color
-        if recordButtonColor(1) <= 0.1
+            % change button color
+            if recordButtonColor(1) <= 0.1
+            else
+                recordButtonColor = [(1-step/75) step/75 0];
+                recordButton.BackgroundColor = recordButtonColor;
+            end
+
+            % Update latest value
+            valuePanelValue.Text = sprintf(['Voltage is %5.3f' ...
+                '\n U/Uinf is %5.3f'],voltage,normVelocity);
+
+            % Plot the cumulative data
+            plot(axisVoltStep, avgVoltX, stepY);
+            plot(axisWaterHeight, waterX, heightY)
+            plot(axisVelocityHeight, normVelocityX, normHeightY)
+
+            voltHolder = zeros(avgSize,1);
+
+            % Move step forward
+            step      = step + str2double(stepSelector.Value);
         else
-            recordButtonColor = [(1-step/75) step/75 0];
-            recordButton.BackgroundColor = recordButtonColor;
+            recordButton.BackgroundColor = [0.9 0.9 0.2];
         end
-
-        % Update latest value
-        valuePanelValue.Text = sprintf(['Voltage is %5.3f' ...
-            '\n U/Uinf is %5.3f'],voltage,normVelocity);
-
-        % Plot the cumulative data
-        plot(axisVoltStep, avgVoltX, stepY);
-        plot(axisWaterHeight, waterX, heightY)
-        plot(axisVelocityHeight, normVelocityX, normHeightY)
-        
-        voltHolder = zeros(avgSize,1);
-
-        % Move step forward
-        step      = step + str2double(stepSelector.Value);
     end
 
     function saveButtonPushed()
@@ -310,7 +317,7 @@ end
         voltHolder = zeros(avgSize,1);
     end
 
-    % Define the onKeyPress function
+% Define the onKeyPress function
     function onKeyPress(~,event)
         keyPressed = event.Key;
 
@@ -328,7 +335,7 @@ end
                 disp(stepSelector.Value)
             elseif strcmp(keyPressed, 'space')
                 recordButtonPushed()
-            end 
+            end
         end
     end
 end
