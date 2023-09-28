@@ -32,7 +32,7 @@ for i=1:length(stations)
     % subplot(1,length(stations),i)
     hold on
     plot(uNorm, rNorm)
-    title(strcat('Disc A3, x/D=',num2str(stations(i))))
+    title(strcat('Disc AOM2v1, x/D=',num2str(stations(i))))
     xlabel('U/U_{infty}')
     ylabel('r/D')
     xlim([0.6 inf])
@@ -63,6 +63,25 @@ CD = 2*FDnorm/Anorm; % Drag coefficient
 
 figure
 plot(stations, CD, 'k*')
-title('Calculated drag coefficient of disc A3')
+title('Calculated drag coefficient of disc AOM2v1')
 xlabel('x/D')
 ylabel('C_D')
+
+figure
+data = readmatrix('AOM2v1S4v4_reverseTilt.csv');
+cranks = data(:,2); % number of cranks up from starting probe position
+pressure = data(:,4); % dynamic pressure in inches of water
+
+r = crankHeight*(cranks-33); % vertical position in mm relative to the center of the disc
+rNorm = r/D; % r normalized by diameter
+
+pInfty = max(pressure); %pressure(1); %max(pressure); % dynamic pressure far away from disc
+uNorm = sqrt(pressure/pInfty); % U/Uinfty
+
+hold on
+plot(uNorm, rNorm)
+title(strcat('Disc AOM2v1, x/D=',num2str(stations(i))))
+xlabel('U/U_{infty}')
+ylabel('r/D')
+xlim([0.6 inf])
+ylim([-1.5 1.5])
