@@ -103,9 +103,56 @@ title('Calculated drag coefficient of disc A6')
 xlabel('x/D')
 ylabel('C_D')
 
-% % Calculate wake diameter and mean wake velocity
-% Dw = zeros{numStations,1}; 
-% Vw = Dw; 
-% for j=1:numStations
-%     top = 
-% end
+% Calculate wake diameter, span, and mean wake velocity
+Dw = zeros(numStations,1); 
+Sw = Dw;
+Vw = Dw; 
+for j=1:numStations
+    % finding outer wake boundaries
+    top = 1; 
+    while uNorm{j}(top)>=uMax
+        top = top+1; 
+    end
+    bottom = length(uNorm{j});
+    while uNorm{j}(bottom) >= uMax
+        bottom = bottom-1; 
+    end
+    
+    % finding wake core boundaries
+    coreTop = top; 
+    while uNorm{j}(coreTop)<uMax
+        coreTop = coreTop+1; 
+    end
+    coreBottom = bottom;
+    while uNorm{j}(coreBottom)<uMax
+        coreBottom = coreBottom-1; 
+    end
+
+    % because the first set of while loops overshoot the outer edges
+    top = top-1; 
+    bottom = bottom+1; 
+    
+    % wake diameter
+    Dw(j) = rNorm{j}(bottom)-rNorm{j}(top); 
+
+    % Check to see if the wake is annular or circular
+    isRing = 1; 
+    if coreTop >= coreBottom
+        isRing = 0; 
+    end
+
+    % wake span
+    if isRing
+        Sw(j) = (rNorm{j}(coreTop)-rNorm{j}(top)+ rNorm{j}(bottom)-rNorm{j}(coreBottom))/2; 
+    else
+        Sw(j) = Dw(j)/2; 
+    end
+
+    % calculating Vw to be area-based avg of uNorm inside wake
+    % I = 2*pi*integral(uNorm*rNorm*drNorm) from rNorm(coreTop) to
+    % rNorm(top) + same integral in bottom region of wake, all /2. Use
+    % trapezoid integration. 
+    % A = 0.25*pi*(Dw^2-(Dw-Sw)^2); 
+    % Vw{j} = I/A; 
+end
+
