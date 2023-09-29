@@ -1,19 +1,19 @@
 clc; clear; close all;
 
-data = readmatrix("A6_2023.csv");
+data = readmatrix("A2_2022.csv");
 
 widthData   = width(data);
 % Number of stations
 numStations = widthData/2;
 
-firstStation = 2; 
+firstStation = 1; 
 % crank location of the center of the wake per station
-crankOffset = [55.75 57.5 57.25 57.25 58.25 58 60 57]/2;
+crankOffset = [23.5 25.75 24.75 25 24 24.75 24.75 23.75]; 
 
 % Information about the disc/setup in mm
 D = 50; % disc diameter
 R = D/2; % radius
-S = 15; % span of annular disc (outer radius minus inner radius)
+S = 9; % span of annular disc (outer radius minus inner radius)
 crankHeight = 3; 
 
 cranks = cell(numStations,1); 
@@ -41,7 +41,7 @@ for j = 1:numStations
     % Create figure
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.4 1])
+    xlim([0.15 1])
     ylim([-1.5 1.5])
     title(sprintf('x/D = %i', firstStation + j - 1))
     xlabel('U/U_{\infty}')
@@ -65,7 +65,7 @@ end
 axval = axis;
 axis([axval(1:3) -axval(3)])
 plot(axval(1:2), [0 0], 'k:') % centerline
-xlim([0.4 1])
+xlim([0.15 1])
 ylim([-1.5 1.5])
 title(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
 xlabel('U/U_{\infty}')
@@ -99,7 +99,7 @@ CD = 2*FDnorm/Anorm; % Drag coefficient
 figure
 stations = [firstStation:numStations+firstStation-1]'; 
 plot(stations, CD, 'k*')
-title('Calculated drag coefficient of disc A6')
+title('Calculated drag coefficient of disc A2')
 xlabel('x/D')
 ylabel('C_D')
 
@@ -117,7 +117,7 @@ for j=1:numStations
     while uNorm{j}(bottom) >= uMax
         bottom = bottom-1; 
     end
-    
+
     % finding wake core boundaries
     coreTop = top; 
     while uNorm{j}(coreTop)<uMax
@@ -131,7 +131,7 @@ for j=1:numStations
     % because the first set of while loops overshoot the outer edges
     top = top-1; 
     bottom = bottom+1; 
-    
+
     % wake diameter
     Dw(j) = rNorm{j}(bottom)-rNorm{j}(top); 
 
