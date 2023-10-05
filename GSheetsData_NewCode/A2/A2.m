@@ -159,13 +159,31 @@ for j=1:numStations
     end
 end
 
+% Mean wake comparison with 1-D entrainment models
+CT = mean(CD(3:8));
+EE = 0.25;
+xe = 0.3;
+xmax = 10;
+addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
+[xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
+
 figure
 subplot(2,1,1)
 plot(stations,Vw,'k*')
-ylabel('V_w/V_{\infty}')
+hold on
+plot(xD,VwFull,'b-','linewidth',1)
+xlim([0 stations(end)])
+ylim([0.5 1])
 title('Mean Wake Velocity')
+ylabel('V_w/V_{\infty}')
+legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast')
+
 subplot(2,1,2)
 plot(stations,Dw/2,'k*',stations,Dw/2-Sw,'k*')
+hold on 
+plot(xD, DwFull/2, 'b-','linewidth',1)
+plot(xD, DwFull/2-SwFull, 'b-','HandleVisibility','off','linewidth',1); 
+xlim([0 stations(end)])
 xlabel('x/D')
 ylabel('r/D')
 title('Wake Boundary')

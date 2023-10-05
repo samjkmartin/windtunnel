@@ -1,4 +1,4 @@
-function [xD,Dw,Sw,Vw] = cfcModel(D,S,CT,EE,xe,xmax)
+function [xD,Vw,Dw,Sw] = cfcModel(D,S,CT,EE,xe,xmax)
 % by Sam Kaufman-Martin
 
 %% Function description
@@ -16,9 +16,9 @@ function [xD,Dw,Sw,Vw] = cfcModel(D,S,CT,EE,xe,xmax)
 
 % Outputs: 
 % xD = x/D over which the calculation is performed (independent variable)
-% Dw = outer diameter of the wake
-% Sw = span of the wake
-% Vw = mean velocity of the wake
+% Dw = outer diameter of the wake, normalized by D
+% Sw = span of the wake, normalized by D
+% Vw = mean velocity of the wake, normalized by the free-stream velocity
 
 %%
 
@@ -37,6 +37,8 @@ end
 % a^2 - a + 1/4 = 1/4 - CT/4
 % (a - 1/2)^2 = (1-CT)/4
 % a - 1/2 = -sqrt((1-CT)/4)
+S = S/D; % normalizing by D
+D = 1; 
 a = 1/2 - sqrt((1-CT)/4); % calculate axial induction factor from CT
 Vinf = 1; % this code defaults to calculating normalized velocity, i.e. the free-stream velocity Vinf = 1
 
