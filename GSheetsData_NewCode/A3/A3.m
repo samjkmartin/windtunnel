@@ -1,19 +1,19 @@
 clc; clear; close all;
 
-data = readmatrix("A6_2023.csv");
+data = readmatrix("A3_2023.csv");
 
 widthData   = width(data);
 % Number of stations
 numStations = widthData/2;
 
-firstStation = 2; 
+firstStation = 1; 
 % crank location of the center of the wake per station
-crankOffset = [55.75 57.5 57.25 57.25 58.25 58 60 57]/2;
+crankOffset = [27.75 26.75 24.75 26.75 26.5 26.5 26.25 26.5]; 
 
 % Information about the disc/setup in mm
 D = 50; % disc diameter
 R = D/2; % radius
-S = 15; % span of annular disc (outer radius minus inner radius)
+S = 5; % span of annular disc (outer radius minus inner radius)
 crankHeight = 3; 
 
 cranks = cell(numStations,1); 
@@ -41,7 +41,7 @@ for j = 1:numStations
     % Create figure
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.4 1])
+    xlim([0.7 1])
     ylim([-1.5 1.5])
     title(sprintf('x/D = %i', firstStation + j - 1))
     xlabel('U/U_{\infty}')
@@ -65,7 +65,7 @@ end
 axval = axis;
 axis([axval(1:3) -axval(3)])
 plot(axval(1:2), [0 0], 'k:') % centerline
-xlim([0.4 1])
+xlim([0.7 1])
 ylim([-1.5 1.5])
 title(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
 xlabel('U/U_{\infty}')
@@ -99,7 +99,7 @@ CD = 2*FDnorm/Anorm; % Drag coefficient
 figure
 stations = [firstStation:numStations+firstStation-1]'; 
 plot(stations, CD, 'k*')
-title('Calculated drag coefficient of disc A6')
+title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2str(S/D)))
 xlabel('x/D')
 ylabel('C_D')
 
@@ -117,7 +117,7 @@ for j=1:numStations
     while uNorm{j}(bottom) >= uMax
         bottom = bottom-1; 
     end
-    
+
     % finding wake core boundaries
     coreTop = top; 
     while uNorm{j}(coreTop)<uMax
@@ -131,7 +131,7 @@ for j=1:numStations
     % because the first set of while loops overshoot the outer edges
     top = top-1; 
     bottom = bottom+1; 
-    
+
     % wake diameter
     Dw(j) = rNorm{j}(bottom)-rNorm{j}(top); 
 
@@ -160,9 +160,9 @@ for j=1:numStations
 end
 
 % Mean wake comparison with 1-D entrainment models
-CT = mean(CD(1:5));
-EE = 0.19;
-xe = 1.25;
+CT = mean(CD(1:8));
+EE = 0.17;
+xe = -0.7;
 xmax = 10;
 if contains(path,'sam')
     addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
@@ -171,8 +171,6 @@ else
 end
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
-% pcfig = figure;
-% pcfig.WindowState = 'maximized';
 figure
 subplot(2,1,1)
 plot(stations,Vw,'k*')
@@ -183,19 +181,6 @@ ylim([0.5 1])
 title('Mean Wake Velocity')
 ylabel('V_w/V_{\infty}')
 legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast')
-
-% % testing out a range of entrainment coefficients
-% for i=1:6
-%     EE = 0.14+0.02*i;
-%     [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
-%     plot(xD,VwFull)
-% end
-
-% % comparison with a linear fit
-% x = stations(6:8);
-% P = polyfit(x,Vw(6:8),1);
-% Vfit = P(1)*x+P(2);
-% plot(x,Vfit,'r-.');
 
 subplot(2,1,2)
 plot(stations,Dw/2,'k*',stations,Dw/2-Sw,'k*')

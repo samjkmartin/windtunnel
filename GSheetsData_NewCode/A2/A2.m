@@ -99,7 +99,7 @@ CD = 2*FDnorm/Anorm; % Drag coefficient
 figure
 stations = [firstStation:numStations+firstStation-1]'; 
 plot(stations, CD, 'k*')
-title('Calculated drag coefficient of disc A2')
+title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2str(S/D)))
 xlabel('x/D')
 ylabel('C_D')
 
@@ -164,7 +164,11 @@ CT = mean(CD(3:8));
 EE = 0.25;
 xe = 0.3;
 xmax = 10;
-addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
+if contains(path,'sam')
+    addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
+else
+    addpath('/Users/smartin/Documents/MATLAB/Github/windtunnel/Models','-end')
+end
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
 figure

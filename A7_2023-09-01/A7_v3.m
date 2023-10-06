@@ -10,12 +10,13 @@ S = 20; % span in mm
 stations = [2:9];
 
 crankHeight = 3; % mm per crank
-crankOffsets = [33.5,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each disc
+crankOffsets = [33.75,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each disc
 
 FDnorm = zeros(length(stations),1); % placeholder for drag force normalized by Uinf and D
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 
-figure
+pcfig = figure;
+pcfig.WindowState = 'maximized';
 for i=1:length(stations)
     data = readmatrix(strcat('A7S',num2str(stations(i)),'.csv'));
     cranks = data(:,2); % number of cranks up from starting probe position

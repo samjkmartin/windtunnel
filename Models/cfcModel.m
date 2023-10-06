@@ -66,6 +66,10 @@ Vw = Ma./ma;
 Dw = 2*sqrt(mi./Vinf + ma.^2./Ma);
 Sw = sqrt(mi./Vinf + ma.^2./Ma) - sqrt(mi./Vinf);
 
+Vw = real(Vw);
+Dw = real(Dw);
+Sw = real(Sw);
+
 % adjust x/D by expansion length
 xD = x + xe; 
 
