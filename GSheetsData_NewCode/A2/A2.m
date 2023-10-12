@@ -8,7 +8,7 @@ numStations = widthData/2;
 
 firstStation = 1; 
 % crank location of the center of the wake per station
-crankOffset = [23.5 25.75 24.75 25 24 24.75 24.75 23.75]; 
+crankOffsets = [23.5 25.75 24.75 25 24 24.75 24.75 23.75]; 
 
 % Information about the disc/setup in mm
 D = 50; % disc diameter
@@ -32,7 +32,7 @@ for j = 1:numStations
     pressure{j} = cleanData(:,1);
     cranks{j} = cleanData(:,2); 
 
-    r = crankHeight*(cranks{j}-crankOffset(j)); % vertical position in mm relative to the center of the disc
+    r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
     
     pInfty = pressure{j}(1); 
