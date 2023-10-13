@@ -13,52 +13,78 @@ numStations = length(stations);
 crankHeight = 3; % mm per crank
 crankOffsets = [33.75,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each disc
 
-FDnorm = zeros(length(stations),1); % placeholder for drag force normalized by Uinf and D
-uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
+cranks = cell(numStations,1); 
+pressure = cranks; 
+rNorm = cranks;
+uNorm = cranks; 
 
 pcfig = figure;
 pcfig.WindowState = 'maximized';
-for i=1:length(stations)
-    data = readmatrix(strcat('A7S',num2str(stations(i)),'.csv'));
-    cranks = data(:,2); % number of cranks up from starting probe position
-    pressure = data(:,4); % dynamic pressure in inches of water
-    % figure
-    % plot(pressure, cranks);
-    % title('Pressure vs Cranks')
-    % xlabel('Pressure (in. H_2O)')
-    % ylabel('Vertical position (cranks)')
-
-    r = crankHeight*(cranks-crankOffsets(i)); % vertical position in mm relative to the center of the disc
-    rNorm = r/D; % r normalized by diameter
-
-    pInfty = pressure(1); %max(pressure); % dynamic pressure far away from disc
-    uNorm = sqrt(pressure/pInfty); % U/Uinfty
-
-    subplot(1,length(stations),i)
-    plot(uNorm, rNorm);
-    title(strcat('Disc A7, x/D=',num2str(stations(i))))
-    xlabel('U/U_{infty}')
-    ylabel('r/D')
+for j=1:numStations
+    data = readmatrix(strcat('A7S',num2str(stations(j)),'.csv'));
+    cranks{j} = data(:,2); % number of cranks up from starting probe position
+    pressure{j} = data(:,4); % dynamic pressure in inches of water
+    
+    r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
+    rNorm{j} = r/D;
+    
+    pInfty = pressure{j}(1); 
+    uNorm{j} = sqrt(pressure{j}/pInfty); 
+   
+    % Create figure
+    subplot(1,numStations,j);
+    plot(uNorm{j}, rNorm{j})
     xlim([0.6 1])
     ylim([-1.5 1.5])
+    title(sprintf('x/D = %i', stations(j)))
+    xlabel('U/U_{\infty}')
+    ylabel('r/D')
 
     hold on
     axval = axis;
     axis([axval(1:3) -axval(3)])
     plot(axval(1:2), [0 0], 'k:') % centerline
-    plot(uNorm, -rNorm, ':b'); % flipped profile
-
-    % Drag Force calculations
-    for j=1:length(uNorm)
-        if uNorm(j) < uMax
-            FDnorm(i) = FDnorm(i) + pi*abs(rNorm(j)-rNorm(j-1))*(abs(rNorm(j))*uNorm(j)*(1-uNorm(j))+abs(rNorm(j-1))*uNorm(j-1)*(1-uNorm(j-1)));
-        end
-    end
+    plot(uNorm{j}, -rNorm{j}, ':b'); % flipped profile
 end
 
-% Calculating drag coefficients from drag force
+sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
+
+% Figure with overlapping velocity profiles
+pcfig = figure;
+pcfig.WindowState = 'maximized';
+for j = 1:numStations
+    plot(uNorm{j}, rNorm{j})
+    hold on
+end
+axval = axis;
+axis([axval(1:3) -axval(3)])
+plot(axval(1:2), [0 0], 'k:') % centerline
+xlim([0.4 1])
+ylim([-1.5 1.5])
+title(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
+xlabel('U/U_{\infty}')
+ylabel('r/D')
+legends = cell(numStations,1); 
+for j = 1:numStations
+    legends{j} = strcat('x/D=', num2str(stations(j)));
+end
+legend(legends)
+
+% Calculating drag force
+FDnorm = zeros(numStations,1); % placeholder for drag force normalized by Uinf and D
+uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
+for j=1:numStations
+    u = uNorm{j};
+    rD = rNorm{j}; 
+    for i=1:length(u)
+        if u(i) < uMax
+            FDnorm(j) = FDnorm(j) + pi*abs(rD(i)-rD(i-1))*(abs(rD(i))*u(i)*(1-u(i))+abs(rD(i-1))*u(i-1)*(1-u(i-1))); 
+        end
+    end
+end 
 FDnorm = 0.5*FDnorm; % because we integrated from -R to R instead of 0 to R, so we double-counted
 
+% Calculating drag coefficients from drag force
 A = pi*(R^2 - (R-S)^2); % disc area, mm^2
 Anorm = A/D^2; % normalized disc area
 
@@ -70,4 +96,110 @@ title('Calculated drag coefficient of disc A7')
 xlabel('x/D')
 ylabel('C_D')
 
-CT = mean(CD);
+% Calculate wake diameter, span, and mean wake velocity
+Dw = zeros(numStations,1); 
+Sw = Dw;
+Vw = Dw; 
+for j=1:numStations  
+    % NEED TO INVERT "top" AND "bottom" IN THE FOLLOWING CODE. IT WAS
+    % WRITTEN FOR THE GSHEETS DATA, BUT IN THE TRANSDUCER DATA, THE TOP AND
+    % BOTTOM OF THE WAKE ARE ON OPPOSITE SIDES OF THE VECTORS COMPARED WITH
+    % THE GSHEETS DATA. 
+    % finding outer wake boundaries
+    top = 1; 
+    while uNorm{j}(top)>=uMax
+        top = top+1; 
+    end
+    bottom = length(uNorm{j});
+    while uNorm{j}(bottom) >= uMax
+        bottom = bottom-1; 
+    end
+    
+    % finding wake core boundaries
+    coreTop = top; 
+    while uNorm{j}(coreTop)<uMax
+        coreTop = coreTop+1; 
+    end
+    coreBottom = bottom;
+    while uNorm{j}(coreBottom)<uMax
+        coreBottom = coreBottom-1; 
+    end
+
+    % because the first set of while loops overshoot the outer edges
+    top = top-1; 
+    bottom = bottom+1; 
+    
+    % wake diameter
+    Dw(j) = rNorm{j}(bottom)-rNorm{j}(top); 
+
+    % Check to see if the wake is annular or circular
+    isRing = 1; 
+    if coreTop >= coreBottom
+        isRing = 0; 
+    end
+
+    % calculating Sw (wake span) and Vw (area-based avg of uNorm inside wake) 
+    if isRing
+        Sw(j) = (rNorm{j}(coreTop)-rNorm{j}(top)+ rNorm{j}(bottom)-rNorm{j}(coreBottom))/2; 
+        uTop = uNorm{j}(top:coreTop);
+        rTop = rNorm{j}(top:coreTop);
+        uBottom = uNorm{j}(coreBottom:bottom);
+        rBottom = rNorm{j}(coreBottom:bottom);
+        I = pi*(trapz(rTop, uTop.*abs(rTop))+trapz(rBottom, uBottom.*rBottom)); % 2*pi*Integral is double-counting because we're using both positive and "negative" r, so we divide by 2
+        Aring = 0.25*pi*(Dw(j)^2-(Dw(j)-2*Sw(j))^2);
+        Vw(j) = I/Aring;
+    else
+        Sw(j) = Dw(j)/2;
+        I = pi*(trapz(rNorm{j}(top:bottom),abs(rNorm{j}(top:bottom)).*uNorm{j}(top:bottom)));
+        Aring = 0.25*pi*Dw(j)^2; 
+        Vw(j) = I/Aring;
+    end
+end
+
+% Mean wake comparison with 1-D entrainment models
+CT = mean(CD(1:5));
+EE = 0.12;
+xe = 0.5; 
+xmax = 10;
+if contains(path,'sam')
+    addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
+else
+    addpath('/Users/smartin/Documents/MATLAB/Github/windtunnel/Models','-end')
+end
+[xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
+
+pcfig = figure;
+pcfig.WindowState = 'maximized';
+subplot(2,1,1)
+plot(stations,Vw,'k*')
+hold on
+plot(xD,VwFull,'b-','linewidth',1)
+xlim([0 stations(end)])
+ylim([0.5 1])
+title('Mean Wake Velocity')
+ylabel('V_w/V_{\infty}')
+legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast','fontsize',14)
+
+% % testing out a range of entrainment coefficients
+% for i=1:6
+%     EE = 0.12+0.02*i;
+%     [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
+%     plot(xD,VwFull)
+% end
+
+% % comparison with a linear fit
+% x = stations(6:8);
+% P = polyfit(x,Vw(6:8),1);
+% Vfit = P(1)*x+P(2);
+% plot(x,Vfit,'r-.');
+
+subplot(2,1,2)
+plot(stations,Dw/2,'k*',stations,Dw/2-Sw,'k*')
+hold on 
+plot(xD, DwFull/2, 'b-','linewidth',1)
+plot(xD, DwFull/2-SwFull, 'b-','HandleVisibility','off','linewidth',1); 
+xlim([0 stations(end)])
+xlabel('x/D')
+ylabel('r/D')
+title('Wake Boundary')
+sgtitle(strcat('Tophat Wake Velocity and Boundaries for S/D=', num2str(S/D)))
