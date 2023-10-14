@@ -200,3 +200,33 @@ xlabel('x/D')
 ylabel('r/D')
 title('Wake Boundary')
 sgtitle(strcat('Tophat Wake Velocity and Boundaries for S/D=', num2str(S/D)))
+
+% tophat model on top of velocity profiles
+pcfig = figure;
+pcfig.WindowState = 'maximized';
+for j=1:numStations
+    subplot(1,numStations,j);
+    plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
+    xlim([0.15 1])
+    ylim([-1.5 1.5])
+    title(sprintf('x/D = %i', firstStation + j - 1))
+    xlabel('U/U_{\infty}')
+    ylabel('r/D')
+
+    hold on
+
+    % axval = axis;
+    % axis([axval(1:3) -axval(3)])
+    % plot(axval(1:2), [0 0], 'k:') % centerline
+    % plot(uNorm{j}, rNorm{j}, ':b'); % flipped profile
+    
+    i = find(xD>stations(j),1)-1;
+    Rwi = DwFull(i)/2; 
+    rwi = Rwi - SwFull(i); 
+    Vwi = VwFull(i);
+
+    rTophat = [-2 -Rwi -Rwi -rwi -rwi rwi rwi Rwi Rwi 2];
+    VwTophat = [1 1 Vwi Vwi 1 1 Vwi Vwi 1 1];
+    plot(VwTophat, rTophat, 'r-');
+end
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'))
