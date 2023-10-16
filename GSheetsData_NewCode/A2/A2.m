@@ -8,7 +8,7 @@ numStations = widthData/2;
 
 firstStation = 1; 
 % crank location of the center of the wake per station
-crankOffset = [23.5 25.75 24.75 25 24 24.75 24.75 23.75]; 
+crankOffsets = [23.5 25.75 24.75 25 24 24.75 24.75 23.75]; 
 
 % Information about the disc/setup in mm
 D = 50; % disc diameter
@@ -32,7 +32,7 @@ for j = 1:numStations
     pressure{j} = cleanData(:,1);
     cranks{j} = cleanData(:,2); 
 
-    r = crankHeight*(cranks{j}-crankOffset(j)); % vertical position in mm relative to the center of the disc
+    r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
     
     pInfty = pressure{j}(1); 
@@ -161,8 +161,8 @@ end
 
 % Mean wake comparison with 1-D entrainment models
 CT = mean(CD(3:8));
-EE = 0.25;
-xe = 0.3;
+EE = 0.26;
+xe = 0.5;
 xmax = 10;
 if contains(path,'sam')
     addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
@@ -171,7 +171,8 @@ else
 end
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
-figure
+pcfig = figure;
+pcfig.WindowState = 'maximized';
 subplot(2,1,1)
 plot(stations,Vw,'k*')
 hold on
@@ -180,7 +181,14 @@ xlim([0 stations(end)])
 ylim([0.5 1])
 title('Mean Wake Velocity')
 ylabel('V_w/V_{\infty}')
-legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast')
+legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast','fontsize',14)
+
+% % testing out a range of entrainment coefficients
+% for i=1:4
+%     EE = 0.16+0.02*i;
+%     [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
+%     plot(xD,VwFull)
+% end
 
 subplot(2,1,2)
 plot(stations,Dw/2,'k*',stations,Dw/2-Sw,'k*')
@@ -192,3 +200,33 @@ xlabel('x/D')
 ylabel('r/D')
 title('Wake Boundary')
 sgtitle(strcat('Tophat Wake Velocity and Boundaries for S/D=', num2str(S/D)))
+
+% tophat model on top of velocity profiles
+pcfig = figure;
+pcfig.WindowState = 'maximized';
+for j=1:numStations
+    subplot(1,numStations,j);
+    plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
+    xlim([0.15 1])
+    ylim([-1.5 1.5])
+    title(sprintf('x/D = %i', firstStation + j - 1))
+    xlabel('U/U_{\infty}')
+    ylabel('r/D')
+
+    hold on
+
+    % axval = axis;
+    % axis([axval(1:3) -axval(3)])
+    % plot(axval(1:2), [0 0], 'k:') % centerline
+    % plot(uNorm{j}, rNorm{j}, ':b'); % flipped profile
+    
+    i = find(xD>stations(j),1)-1;
+    Rwi = DwFull(i)/2; 
+    rwi = Rwi - SwFull(i); 
+    Vwi = VwFull(i);
+
+    rTophat = [-2 -Rwi -Rwi -rwi -rwi rwi rwi Rwi Rwi 2];
+    VwTophat = [1 1 Vwi Vwi 1 1 Vwi Vwi 1 1];
+    plot(VwTophat, rTophat, 'r-');
+end
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'))

@@ -8,7 +8,7 @@ numStations = widthData/2;
 
 firstStation = 1; 
 % crank location of the center of the wake per station
-crankOffset = [27.75 26.75 24.75 26.75 26.5 26.5 26.25 26.5]; 
+crankOffsets = [27.75 26.75 24.75 26.75 26.5 26.5 26.25 26.5]; 
 
 % Information about the disc/setup in mm
 D = 50; % disc diameter
@@ -32,7 +32,7 @@ for j = 1:numStations
     pressure{j} = cleanData(:,1);
     cranks{j} = cleanData(:,2); 
 
-    r = crankHeight*(cranks{j}-crankOffset(j)); % vertical position in mm relative to the center of the disc
+    r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
     
     pInfty = pressure{j}(1); 
@@ -161,8 +161,8 @@ end
 
 % Mean wake comparison with 1-D entrainment models
 CT = mean(CD(1:8));
-EE = 0.17;
-xe = -0.7;
+EE = 0.25;
+xe = 0.5;
 xmax = 10;
 if contains(path,'sam')
     addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
@@ -171,7 +171,9 @@ else
 end
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
-figure
+
+pcfig = figure;
+pcfig.WindowState = 'maximized';
 subplot(2,1,1)
 plot(stations,Vw,'k*')
 hold on
@@ -180,7 +182,14 @@ xlim([0 stations(end)])
 ylim([0.5 1])
 title('Mean Wake Velocity')
 ylabel('V_w/V_{\infty}')
-legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast')
+legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast','fontsize',14)
+
+% % testing out a range of entrainment coefficients
+% for i=1:4
+%     EE = 0.2+0.02*i;
+%     [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
+%     plot(xD,VwFull)
+% end
 
 subplot(2,1,2)
 plot(stations,Dw/2,'k*',stations,Dw/2-Sw,'k*')

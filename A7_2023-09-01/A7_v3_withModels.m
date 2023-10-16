@@ -1,20 +1,17 @@
-clc; clear; close all;
+clc;
+clear all;
+close all;
 
-data = readmatrix("A6_2023.csv");
+% Information about the disc
+D = 50; % diameter in mm
+R = D/2; % Disc radius
+S = 20; % span in mm
 
-widthData   = width(data);
-% Number of stations
-numStations = widthData/2;
+stations = [2:9];
+numStations = length(stations);
 
-firstStation = 2; 
-% crank location of the center of the wake per station
-crankOffsets = [55.75 57.5 57.25 57.25 58.25 58 60 57]/2;
-
-% Information about the disc/setup in mm
-D = 50; % disc diameter
-R = D/2; % radius
-S = 15; % span of annular disc (outer radius minus inner radius)
-crankHeight = 3; 
+crankHeight = 3; % mm per crank
+crankOffsets = [33.75,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each disc
 
 cranks = cell(numStations,1); 
 pressure = cranks; 
@@ -23,15 +20,11 @@ uNorm = cranks;
 
 pcfig = figure;
 pcfig.WindowState = 'maximized';
-for j = 1:numStations
-    pNan = data(:,2*j); % raw pressure data. Rows with zeros are actually empty rows
-    pNan(pNan==0) = nan; % empty rows to be removed
-
-    cleanData = [pNan,data(:,2*j-1)]; % pressure, cranks
-    cleanData(any(isnan(cleanData),2),:) = [];
-    pressure{j} = cleanData(:,1);
-    cranks{j} = cleanData(:,2); 
-
+for j=1:numStations
+    data = readmatrix(strcat('A7S',num2str(stations(j)),'.csv'));
+    cranks{j} = data(:,2); % number of cranks up from starting probe position
+    pressure{j} = data(:,4); % dynamic pressure in inches of water
+    
     r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
     
@@ -40,10 +33,10 @@ for j = 1:numStations
    
     % Create figure
     subplot(1,numStations,j);
-    plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.4 1])
+    plot(uNorm{j}, rNorm{j})
+    xlim([0.6 1])
     ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
     ylabel('r/D')
 
@@ -51,15 +44,16 @@ for j = 1:numStations
     axval = axis;
     axis([axval(1:3) -axval(3)])
     plot(axval(1:2), [0 0], 'k:') % centerline
-    plot(uNorm{j}, rNorm{j}, ':b'); % flipped profile
+    plot(uNorm{j}, -rNorm{j}, ':b'); % flipped profile
 end
+
 sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
 
-% allfig = figure;
+% Figure with overlapping velocity profiles
 pcfig = figure;
 pcfig.WindowState = 'maximized';
 for j = 1:numStations
-    plot(uNorm{j}, -rNorm{j})
+    plot(uNorm{j}, rNorm{j})
     hold on
 end
 axval = axis;
@@ -72,7 +66,7 @@ xlabel('U/U_{\infty}')
 ylabel('r/D')
 legends = cell(numStations,1); 
 for j = 1:numStations
-    legends{j} = strcat('x/D=', num2str(firstStation+j-1));
+    legends{j} = strcat('x/D=', num2str(stations(j)));
 end
 legend(legends)
 
@@ -97,9 +91,8 @@ Anorm = A/D^2; % normalized disc area
 CD = 2*FDnorm/Anorm; % Drag coefficient
 
 figure
-stations = [firstStation:numStations+firstStation-1]'; 
 plot(stations, CD, 'k*')
-title('Calculated drag coefficient of disc A6')
+title('Calculated drag coefficient of disc A7')
 xlabel('x/D')
 ylabel('C_D')
 
@@ -107,7 +100,11 @@ ylabel('C_D')
 Dw = zeros(numStations,1); 
 Sw = Dw;
 Vw = Dw; 
-for j=1:numStations
+for j=1:numStations  
+    % NEED TO INVERT "top" AND "bottom" IN THE FOLLOWING CODE. IT WAS
+    % WRITTEN FOR THE GSHEETS DATA, BUT IN THE TRANSDUCER DATA, THE TOP AND
+    % BOTTOM OF THE WAKE ARE ON OPPOSITE SIDES OF THE VECTORS COMPARED WITH
+    % THE GSHEETS DATA. 
     % finding outer wake boundaries
     top = 1; 
     while uNorm{j}(top)>=uMax
@@ -161,7 +158,7 @@ end
 
 % Mean wake comparison with 1-D entrainment models
 CT = mean(CD(1:5));
-EE = 0.14;
+EE = 0.12;
 xe = 0.5; 
 xmax = 10;
 if contains(path,'sam')

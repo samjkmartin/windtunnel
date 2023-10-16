@@ -64,3 +64,5 @@ plot(stations, CD, 'k*')
 title('Calculated drag coefficient of disc A5')
 xlabel('x/D')
 ylabel('C_D')
+
+CT = mean(CD)
