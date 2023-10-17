@@ -17,6 +17,7 @@ S = 9; % span of annular disc (outer radius minus inner radius)
 crankHeight = 3; 
 
 cranks = cell(numStations,1); 
+r = cranks; 
 pressure = cranks; 
 rNorm = cranks;
 uNorm = cranks; 
@@ -32,8 +33,8 @@ for j = 1:numStations
     pressure{j} = cleanData(:,1);
     cranks{j} = cleanData(:,2); 
 
-    r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
-    rNorm{j} = r/D;
+    r{j} = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
+    rNorm{j} = r{j}/D;
     
     pInfty = pressure{j}(1); 
     uNorm{j} = sqrt(pressure{j}/pInfty); 
@@ -55,7 +56,7 @@ for j = 1:numStations
 end
 sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
 
-% allfig = figure;
+%% overlapping velocity profiles
 pcfig = figure;
 pcfig.WindowState = 'maximized';
 for j = 1:numStations
@@ -76,6 +77,7 @@ for j = 1:numStations
 end
 legend(legends)
 
+%% Drag coefficient
 % Calculating drag force
 FDnorm = zeros(numStations,1); % placeholder for drag force normalized by Uinf and D
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
@@ -103,7 +105,7 @@ title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2
 xlabel('x/D')
 ylabel('C_D')
 
-% Calculate wake diameter, span, and mean wake velocity
+%% Calculate wake diameter, span, and mean wake velocity
 Dw = zeros(numStations,1); 
 Sw = Dw;
 Vw = Dw; 
@@ -159,7 +161,7 @@ for j=1:numStations
     end
 end
 
-% Mean wake comparison with 1-D entrainment models
+%% Mean wake comparison with 1-D (tophat) entrainment models
 CT = mean(CD(3:8));
 EE = 0.26;
 xe = 0.5;
@@ -201,7 +203,12 @@ ylabel('r/D')
 title('Wake Boundary')
 sgtitle(strcat('Tophat Wake Velocity and Boundaries for S/D=', num2str(S/D)))
 
-% tophat model on top of velocity profiles
+%% tophat model on top of velocity profiles
+
+% preparing for the Gaussian fit, which happens later
+SwFullStations = zeros(j,1); 
+DwFullStations = SwFullStations; 
+
 pcfig = figure;
 pcfig.WindowState = 'maximized';
 for j=1:numStations
@@ -221,6 +228,7 @@ for j=1:numStations
     % plot(uNorm{j}, rNorm{j}, ':b'); % flipped profile
     
     i = find(xD>stations(j),1)-1;
+    DwFullStations(j) = DwFull(i); % Value of Dw at each station (for Gaussian fitting)
     Rwi = DwFull(i)/2; 
     rwi = Rwi - SwFull(i); 
     Vwi = VwFull(i);
@@ -228,5 +236,60 @@ for j=1:numStations
     rTophat = [-2 -Rwi -Rwi -rwi -rwi rwi rwi Rwi Rwi 2];
     VwTophat = [1 1 Vwi Vwi 1 1 Vwi Vwi 1 1];
     plot(VwTophat, rTophat, 'r-');
+
+    SwFullStations(j) = SwFull(i); % Value of Sw at each station (for Gaussian fitting)
 end
 sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'))
+
+%% Gaussian fit on top of velocity profiles
+% ufit = sum of two Gaussians
+% ufit = 1-deltaU*(exp((R-Rpeak)^2/[width of peak]^2)+exp(same but R+Rpeak))
+% deltaU is the mean of the deltaU's for the two peaks
+% Rp is the mean of the locations of the two peaks in r/D coordinates
+% b is defined by the tophat model: b = Sw/e
+
+% finding average location, magnitude, and width of velocity deficit peaks, and 
+Rp = zeros(numStations,1); 
+deltaU = Rp; 
+b = Rp; 
+SDcrit = 0.5; % criteria for S/D to determine if wake is annular or circular
+for j=1:numStations
+    if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if wake is circular
+        deltaU(j) = 1-min(uNorm{j});
+        Rp(j) = 0;
+        b(j) = DwFullStations(j)/exp(1); 
+    else % if wake is annular
+        uMin1 = min(uNorm{j}(1:find(rNorm{j}>0,1)));
+        uMin2 = min(uNorm{j}(find(rNorm{j}>0,1):end));
+        Rp1 = rNorm{j}(find(uNorm{j}==uMin1,1)); 
+        Rp2 = rNorm{j}(find(uNorm{j}==uMin2,1)); 
+        deltaU(j) = 1-(uMin1+uMin2)/2;
+        Rp(j) = (abs(Rp1)+abs(Rp2))/2; 
+        b(j) = SwFullStations(j)/exp(1); 
+    end
+end
+
+rGauss = (-2.5:0.01:2.5)';
+ufit = zeros(length(rGauss),numStations); 
+
+pcfig = figure;
+pcfig.WindowState = 'maximized';
+for j=1:numStations
+    subplot(1,numStations,j);
+    plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
+    xlim([0.15 1])
+    ylim([-1.5 1.5])
+    title(sprintf('x/D = %i', firstStation + j - 1))
+    xlabel('U/U_{\infty}')
+    ylabel('r/D')
+    
+    hold on
+    if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if the wake is circular
+        ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss).^2./b(j)^2));
+    else % if the wake is annular
+        ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss-Rp(j)).^2./b(j)^2)+exp(-(rGauss+Rp(j)).^2./b(j)^2));
+    end
+    plot(ufit(:,j),rGauss)
+end
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'))
+
