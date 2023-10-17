@@ -243,10 +243,10 @@ sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared
 
 %% Gaussian fit on top of velocity profiles
 % ufit = sum of two Gaussians
-% ufit = 1-deltaU*(exp((R-Rpeak)^2/[width of peak]^2)+exp(same but R+Rpeak))
-% deltaU is the mean of the deltaU's for the two peaks
+% ufit = 1-deltaU*(exp((r-Rp)^2/b^2)+exp(same but r+Rp))
+% deltaU is the mean of the maximum velocity deficits for the two peaks
 % Rp is the mean of the locations of the two peaks in r/D coordinates
-% b is defined by the tophat model: b = Sw/e
+% b, the width of the peak, is defined by the tophat model: b = Sw/e
 
 % finding average location, magnitude, and width of velocity deficit peaks, and 
 Rp = zeros(numStations,1); 
