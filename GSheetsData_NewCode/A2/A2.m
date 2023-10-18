@@ -1,5 +1,7 @@
 clc; clear; close all;
 
+%% Importing data and plotting velocity profiles
+
 data = readmatrix("A2_2022.csv");
 
 widthData   = width(data);
@@ -242,17 +244,20 @@ end
 sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'))
 
 %% Gaussian fit on top of velocity profiles
+
+% Version 1: define deltaU and Rp using data, but define b using Sw from tophat model
 % ufit = sum of two Gaussians
 % ufit = 1-deltaU*(exp((r-Rp)^2/b^2)+exp(same but r+Rp))
 % deltaU is the mean of the maximum velocity deficits for the two peaks
 % Rp is the mean of the locations of the two peaks in r/D coordinates
 % b, the width of the peak, is defined by the tophat model: b = Sw/e
 
-% finding average location, magnitude, and width of velocity deficit peaks, and 
+% finding average location, magnitude, and width of velocity deficit peaks
 Rp = zeros(numStations,1); 
 deltaU = Rp; 
 b = Rp; 
 SDcrit = 0.5; % criteria for S/D to determine if wake is annular or circular
+
 for j=1:numStations
     if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if wake is circular
         deltaU(j) = 1-min(uNorm{j});
@@ -285,9 +290,40 @@ for j=1:numStations
     
     hold on
     if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if the wake is circular
-        ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss).^2./b(j)^2));
+        ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss).^2/b(j)^2));
     else % if the wake is annular
-        ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss-Rp(j)).^2./b(j)^2)+exp(-(rGauss+Rp(j)).^2./b(j)^2));
+        ufit(:,j) = 1 - deltaU(j).*(exp(-((rGauss-Rp(j))/b(j)).^2)+exp(-((rGauss+Rp(j))/b(j)).^2));
+    end
+    plot(ufit(:,j),rGauss)
+end
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'))
+
+%% Version 2: define deltaU, Rp, and b using curve fitting
+doubleGauss = fittype(@(deltaU,Rp,b,rGauss) 1 - deltaU*(exp(-((rGauss-Rp)/b).^2)+exp(-((rGauss+Rp)/b).^2)),'independent','rGauss');
+gaussFit = cell(numStations,1);
+
+pcfig = figure;
+pcfig.WindowState = 'maximized';
+for j=1:numStations
+    subplot(1,numStations,j);
+    plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
+    xlim([0.15 1])
+    ylim([-1.5 1.5])
+    title(sprintf('x/D = %i', firstStation + j - 1))
+    xlabel('U/U_{\infty}')
+    ylabel('r/D')
+    
+    startPoints = [Vw(j),(R-S/2)/D,S/D];
+    gaussFit{j} = fit(rNorm{j},uNorm{j},doubleGauss,'StartPoint',startPoints);
+    deltaU(j) = gaussFit{j}.deltaU;
+    Rp(j) = gaussFit{j}.Rp;
+    b(j) = gaussFit{j}.b; 
+    
+    hold on
+    if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if the wake is circular
+        ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss).^2/b(j)^2));
+    else % if the wake is annular
+        ufit(:,j) = 1 - deltaU(j).*(exp(-((rGauss-Rp(j))/b(j)).^2)+exp(-((rGauss+Rp(j))/b(j)).^2));
     end
     plot(ufit(:,j),rGauss)
 end
