@@ -5,10 +5,10 @@ clc; clear; close all;
 data = readmatrix("A2_2022.csv");
 
 widthData   = width(data);
-% Number of stations
-numStations = widthData/2;
-
+numStations = widthData/2; % Number of stations
 firstStation = 1; 
+stations = [firstStation:numStations+firstStation-1]'; 
+
 % crank location of the center of the wake per station
 crankOffsets = [23.5 25.75 24.75 25 24 24.75 24.75 23.75]; 
 
@@ -46,7 +46,7 @@ for j = 1:numStations
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
     xlim([0.15 1])
     ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
     ylabel('r/D')
 
@@ -101,7 +101,6 @@ Anorm = A/D^2; % normalized disc area
 CD = 2*FDnorm/Anorm; % Drag coefficient
 
 figure
-stations = [firstStation:numStations+firstStation-1]'; 
 plot(stations, CD, 'k*')
 title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2str(S/D)))
 xlabel('x/D')
@@ -218,7 +217,7 @@ for j=1:numStations
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
     xlim([0.15 1])
     ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
     ylabel('r/D')
 
@@ -284,7 +283,7 @@ for j=1:numStations
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
     xlim([0.15 1])
     ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
     ylabel('r/D')
     
@@ -296,7 +295,7 @@ for j=1:numStations
     end
     plot(ufit(:,j),rGauss)
 end
-sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'))
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical/tophat hybrid Gaussian profiles'))
 
 %% Version 2: define deltaU, Rp, and b using curve fitting
 doubleGauss = fittype(@(deltaU,Rp,b,rGauss) 1 - deltaU*(exp(-((rGauss-Rp)/b).^2)+exp(-((rGauss+Rp)/b).^2)),'independent','rGauss');
@@ -309,7 +308,7 @@ for j=1:numStations
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
     xlim([0.15 1])
     ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
     ylabel('r/D')
     
