@@ -313,7 +313,7 @@ for j=1:numStations
     xlabel('U/U_{\infty}')
     ylabel('r/D')
     
-    startPoints = [Vw(j),(R-S/2)/D,S/D];
+    startPoints = [0.5,(R-S/2)/D,S/D];
     gaussFit{j} = fit(rNorm{j},uNorm{j},doubleGauss,'StartPoint',startPoints);
     deltaU(j) = gaussFit{j}.deltaU;
     Rp(j) = gaussFit{j}.Rp;
