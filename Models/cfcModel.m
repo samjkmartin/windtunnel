@@ -42,7 +42,6 @@ D = 1;
 a = 1/2 - sqrt((1-CT)/4); % calculate axial induction factor from CT
 Vinf = 1; % this code defaults to calculating normalized velocity, i.e. the free-stream velocity Vinf = 1
 
-
 % Initial Conditions
 Vw0 = Vinf*(1 - 2*a);
 Dw0 = sqrt(D^2+(4*a/(1-2*a))*(S*D-S^2));
