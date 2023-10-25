@@ -322,11 +322,11 @@ for j=1:numStations
     b(j) = gaussFit{j}.b; 
     
     hold on
-    if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if the wake is circular
-        ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss).^2/b(j)^2));
-    else % if the wake is annular
+    % if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if the wake is circular
+    %     ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss).^2/b(j)^2));
+    % else % if the wake is annular
         ufit(:,j) = 1 - deltaU(j).*(exp(-((rGauss-Rp(j))/b(j)).^2)+exp(-((rGauss+Rp(j))/b(j)).^2));
-    end
+    % end
     plot(ufit(:,j),rGauss)
 end
 sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'))
