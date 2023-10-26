@@ -101,7 +101,7 @@ Anorm = A/D^2; % normalized disc area
 CD = 2*FDnorm/Anorm; % Drag coefficient
 
 figure
-plot(stations, CD, 'k*')
+plot(stations, CD, 'ko')
 title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2str(S/D)))
 xlabel('x/D')
 ylabel('C_D')
@@ -176,15 +176,18 @@ end
 
 pcfig = figure;
 pcfig.WindowState = 'maximized';
-subplot(2,1,1)
-plot(stations,Vw,'k*')
+set(gcf,'color','white')
+% subplot(2,1,1)
+plot(stations,Vw,'ko')
 hold on
 plot(xD,VwFull,'b-','linewidth',1)
 xlim([0 stations(end)])
 ylim([0.5 1])
-title('Mean Wake Velocity')
+title(strcat('Mean Wake Velocity for S/D=',num2str(S/D)))
+xlabel('x/D')
 ylabel('V_w/V_{\infty}')
 legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast','fontsize',14)
+set(gcf,'color','white')
 
 % % testing out a range of entrainment coefficients
 % for i=1:4
@@ -193,6 +196,7 @@ legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(x
 %     plot(xD,VwFull)
 % end
 
+%{
 subplot(2,1,2)
 plot(stations,Dw/2,'k*',stations,Dw/2-Sw,'k*')
 hold on 
@@ -203,6 +207,7 @@ xlabel('x/D')
 ylabel('r/D')
 title('Wake Boundary')
 sgtitle(strcat('Tophat Wake Velocity and Boundaries for S/D=', num2str(S/D)))
+%}
 
 %% tophat model on top of velocity profiles
 
@@ -240,11 +245,13 @@ for j=1:numStations
 
     SwFullStations(j) = SwFull(i); % Value of Sw at each station (for Gaussian fitting)
 end
-sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'))
+set(gcf,'color','white')
+fontsize(14,'points')
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'),'fontsize',16)
 
 %% Gaussian fit on top of velocity profiles
 
-% Version 1: define deltaU and Rp using data, but define b using Sw from tophat model
+%% Version 1: define deltaU and Rp using data, but define b using Sw from tophat model
 % ufit = sum of two Gaussians
 % ufit = 1-deltaU*(exp((r-Rp)^2/b^2)+exp(same but r+Rp))
 % deltaU is the mean of the maximum velocity deficits for the two peaks
@@ -276,6 +283,7 @@ end
 rGauss = (-2.5:0.01:2.5)';
 ufit = zeros(length(rGauss),numStations); 
 
+%{
 pcfig = figure;
 pcfig.WindowState = 'maximized';
 for j=1:numStations
@@ -296,6 +304,7 @@ for j=1:numStations
     plot(ufit(:,j),rGauss)
 end
 sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical/tophat hybrid Gaussian profiles'))
+%}
 
 %% Version 2: define deltaU, Rp, and b using curve fitting
 doubleGauss = fittype(@(deltaU,Rp,b,rGauss) 1 - deltaU*(exp(-((rGauss-Rp)/b).^2)+exp(-((rGauss+Rp)/b).^2)),'independent','rGauss');
@@ -303,6 +312,7 @@ gaussFit = cell(numStations,1);
 
 pcfig = figure;
 pcfig.WindowState = 'maximized';
+set(gcf,'color','white')
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
@@ -325,6 +335,10 @@ for j=1:numStations
         ufit(:,j) = 1 - deltaU(j).*(exp(-((rGauss-Rp(j))/b(j)).^2)+exp(-((rGauss+Rp(j))/b(j)).^2));
     end
     plot(ufit(:,j),rGauss)
+    if j==1
+        legend('Wind tunnel data', 'Gaussian fit','location','north')
+    end
+    fontsize(14,'points')
 end
-sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'))
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'),'fontsize',16)
 

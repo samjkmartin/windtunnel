@@ -238,6 +238,8 @@ for j=1:numStations
 
     SwFullStations(j) = SwFull(i); % Value of Sw at each station (for Gaussian fitting)
 end
+set(gcf,'color','white')
+fontsize(14,'points')
 sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'))
 
 %% Gaussian fit on top of velocity profiles
