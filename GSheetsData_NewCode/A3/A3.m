@@ -301,17 +301,19 @@ sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared
 doubleGauss = fittype(@(deltaU,Rp,b,rGauss) 1 - deltaU*(exp(-((rGauss-Rp)/b).^2)+exp(-((rGauss+Rp)/b).^2)),'independent','rGauss');
 gaussFit = cell(numStations,1);
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+FigGauss = figure;
+FigGauss.WindowState = 'maximized';
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
     xlim([0.7 1])
-    ylim([-1.5 1.5])
+    ylim([-1.25 1.25])
     title(sprintf('x/D = %i', firstStation + j - 1))
     xlabel('U/U_{\infty}')
-    ylabel('r/D')
-    
+    if j==1
+        ylabel('r/D')
+    end
+
     startPoints = [0.5,(R-S/2)/D,S/D];
     gaussFit{j} = fit(rNorm{j},uNorm{j},doubleGauss,'StartPoint',startPoints);
     deltaU(j) = gaussFit{j}.deltaU;
@@ -327,3 +329,5 @@ for j=1:numStations
     plot(ufit(:,j),rGauss)
 end
 sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'))
+exportgraphics(FigGauss, strcat('SD0,', num2str(100*S/D), '_Gaussian.pdf'),'ContentType','vector',...
+               'BackgroundColor','none')

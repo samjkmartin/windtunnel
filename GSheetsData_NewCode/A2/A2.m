@@ -24,8 +24,13 @@ pressure = cranks;
 rNorm = cranks;
 uNorm = cranks; 
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+uAxis = [0.15 1]; % U axis values for all velocity profile plots
+rAxis = [-1.2 1.2]; % r axis values for all velocity profile plotsk
+sizeFont = 20; % default font size for multi-panel figures
+sizeTitle = 24; % default title font size for multi-panel figures
+
+figProfiles = figure;
+% pcfig.WindowState = 'maximized';
 for j = 1:numStations
     pNan = data(:,2*j); % raw pressure data. Rows with zeros are actually empty rows
     pNan(pNan==0) = nan; % empty rows to be removed
@@ -44,11 +49,15 @@ for j = 1:numStations
     % Create figure
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.15 1])
-    ylim([-1.5 1.5])
+    xlim(uAxis)
+    ylim(rAxis)
     title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
-    ylabel('r/D')
+    if j==1
+        ylabel('r/D')
+    else
+        set(gca,'Yticklabel',[])
+    end
 
     hold on
     axval = axis;
@@ -56,7 +65,10 @@ for j = 1:numStations
     plot(axval(1:2), [0 0], 'k:') % centerline
     plot(uNorm{j}, rNorm{j}, ':b'); % flipped profile
 end
-sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
+fontsize(sizeFont,'points')
+sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)),'fontsize',sizeTitle)
+figProfiles.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
 
 %% overlapping velocity profiles
 pcfig = figure;
@@ -68,8 +80,8 @@ end
 axval = axis;
 axis([axval(1:3) -axval(3)])
 plot(axval(1:2), [0 0], 'k:') % centerline
-xlim([0.15 1])
-ylim([-1.5 1.5])
+xlim(uAxis)
+ylim(rAxis)
 title(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
 xlabel('U/U_{\infty}')
 ylabel('r/D')
@@ -78,6 +90,7 @@ for j = 1:numStations
     legends{j} = strcat('x/D=', num2str(firstStation+j-1));
 end
 legend(legends)
+close
 
 %% Drag coefficient
 % Calculating drag force
@@ -105,6 +118,7 @@ plot(stations, CD, 'ko')
 title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2str(S/D)))
 xlabel('x/D')
 ylabel('C_D')
+close
 
 %% Calculate wake diameter, span, and mean wake velocity
 Dw = zeros(numStations,1); 
@@ -176,7 +190,7 @@ end
 
 pcfig = figure;
 pcfig.WindowState = 'maximized';
-set(gcf,'color','white')
+% set(gcf,'color','white')
 % subplot(2,1,1)
 plot(stations,Vw,'ko')
 hold on
@@ -220,8 +234,8 @@ pcfig.WindowState = 'maximized';
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.15 1])
-    ylim([-1.5 1.5])
+    xlim(uAxis)
+    ylim(rAxis)
     title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
     ylabel('r/D')
@@ -245,7 +259,7 @@ for j=1:numStations
 
     SwFullStations(j) = SwFull(i); % Value of Sw at each station (for Gaussian fitting)
 end
-set(gcf,'color','white')
+% set(gcf,'color','white')
 fontsize(14,'points')
 sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'),'fontsize',16)
 
@@ -289,8 +303,8 @@ pcfig.WindowState = 'maximized';
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.15 1])
-    ylim([-1.5 1.5])
+    xlim(uAxis)
+    ylim(rAxis)
     title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
     ylabel('r/D')
@@ -310,17 +324,21 @@ sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared
 doubleGauss = fittype(@(deltaU,Rp,b,rGauss) 1 - deltaU*(exp(-((rGauss-Rp)/b).^2)+exp(-((rGauss+Rp)/b).^2)),'independent','rGauss');
 gaussFit = cell(numStations,1);
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
-set(gcf,'color','white')
+figGauss = figure;
+% figGauss.WindowState = 'maximized';
+% set(gcf,'color','white')
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.15 1])
-    ylim([-1.5 1.5])
+    xlim(uAxis)
+    ylim(rAxis)
     title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
-    ylabel('r/D')
+    if j==1
+        ylabel('r/D')
+    else
+        set(gca,'Yticklabel',[])
+    end
     
     startPoints = [0.5,(R-S/2)/D,S/D];
     gaussFit{j} = fit(rNorm{j},uNorm{j},doubleGauss,'StartPoint',startPoints);
@@ -334,11 +352,13 @@ for j=1:numStations
     else % if the wake is annular
         ufit(:,j) = 1 - deltaU(j).*(exp(-((rGauss-Rp(j))/b(j)).^2)+exp(-((rGauss+Rp(j))/b(j)).^2));
     end
-    plot(ufit(:,j),rGauss)
-    if j==1
-        legend('Wind tunnel data', 'Gaussian fit','location','north')
+    plot(ufit(:,j),rGauss, 'r--')
+    
+    if j==2
+        legend('Wind tunnel data', 'Gaussian fit','location','southeast')
     end
-    fontsize(14,'points')
 end
-sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'),'fontsize',16)
-
+fontsize(sizeFont,'points')
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'),'fontsize',sizeTitle)
+figGauss.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+exportgraphics(figGauss, strcat('SD0,', num2str(100*S/D), '_Gaussian.pdf'),'ContentType','vector','BackgroundColor','none')
