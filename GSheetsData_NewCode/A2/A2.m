@@ -30,7 +30,7 @@ sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
 figProfiles = figure;
-% pcfig.WindowState = 'maximized';
+% figProfiles.WindowState = 'maximized';
 for j = 1:numStations
     pNan = data(:,2*j); % raw pressure data. Rows with zeros are actually empty rows
     pNan(pNan==0) = nan; % empty rows to be removed
@@ -71,8 +71,8 @@ figProfiles.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main text
 exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
 
 %% overlapping velocity profiles
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+figOverlap = figure;
+figOverlap.WindowState = 'maximized';
 for j = 1:numStations
     plot(uNorm{j}, -rNorm{j})
     hold on
@@ -305,8 +305,8 @@ rGauss = (-2.5:0.01:2.5)';
 ufit = zeros(length(rGauss),numStations); 
 
 %{
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+figHybrid = figure;
+figHybrid.WindowState = 'maximized';
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
