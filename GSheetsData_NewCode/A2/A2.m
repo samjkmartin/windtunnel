@@ -66,7 +66,7 @@ for j = 1:numStations
     plot(uNorm{j}, rNorm{j}, ':b'); % flipped profile
 end
 fontsize(sizeFont,'points')
-sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)),'fontsize',sizeTitle)
+% sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)),'fontsize',sizeTitle)
 figProfiles.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
 exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
 
@@ -188,20 +188,21 @@ else
 end
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
-% set(gcf,'color','white')
+figVw = figure;
+% figVw.WindowState = 'maximized';
 % subplot(2,1,1)
-plot(stations,Vw,'ko')
+plot(stations,Vw,'ko','MarkerFaceColor','k')
 hold on
 plot(xD,VwFull,'b-','linewidth',1)
 xlim([0 stations(end)])
 ylim([0.5 1])
-title(strcat('Mean Wake Velocity for S/D=',num2str(S/D)))
 xlabel('x/D')
 ylabel('V_w/V_{\infty}')
 legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast','fontsize',14)
-set(gcf,'color','white')
+fontsize(sizeFont,'points')
+% title(strcat('Mean Wake Velocity for S/D=',num2str(S/D)),'FontSize',sizeTitle)
+figVw.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+exportgraphics(figVw, strcat('SD0,', num2str(100*S/D), '_Vw.pdf'),'ContentType','vector','BackgroundColor','none')
 
 % % testing out a range of entrainment coefficients
 % for i=1:4
@@ -229,8 +230,8 @@ sgtitle(strcat('Tophat Wake Velocity and Boundaries for S/D=', num2str(S/D)))
 SwFullStations = zeros(j,1); 
 DwFullStations = SwFullStations; 
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+figTophat = figure;
+% figTophat.WindowState = 'maximized';
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
@@ -238,7 +239,11 @@ for j=1:numStations
     ylim(rAxis)
     title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
-    ylabel('r/D')
+    if j==1
+        ylabel('r/D')
+    else
+        set(gca,'Yticklabel',[])
+    end
 
     hold on
 
@@ -260,8 +265,10 @@ for j=1:numStations
     SwFullStations(j) = SwFull(i); % Value of Sw at each station (for Gaussian fitting)
 end
 % set(gcf,'color','white')
-fontsize(14,'points')
-sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'),'fontsize',16)
+fontsize(sizeFont,'points')
+% sgtitle({strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with'); strcat('tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')')},'fontsize',sizeTitle)
+figTophat.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+exportgraphics(figTophat, strcat('SD0,', num2str(100*S/D), '_tophat.pdf'),'ContentType','vector','BackgroundColor','none')
 
 %% Gaussian fit on top of velocity profiles
 
