@@ -17,12 +17,18 @@ S = 15; % span of annular disc (outer radius minus inner radius)
 crankHeight = 3; 
 
 cranks = cell(numStations,1); 
+r = cranks; 
 pressure = cranks; 
 rNorm = cranks;
 uNorm = cranks; 
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+uAxis = [0.4 1]; % U axis values for all velocity profile plots
+rAxis = [-1.2 1.2]; % r axis values for all velocity profile plotsk
+sizeFont = 20; % default font size for multi-panel figures
+sizeTitle = 24; % default title font size for multi-panel figures
+
+figProfiles = figure;
+% figProfiles.WindowState = 'maximized';
 for j = 1:numStations
     pNan = data(:,2*j); % raw pressure data. Rows with zeros are actually empty rows
     pNan(pNan==0) = nan; % empty rows to be removed
@@ -32,8 +38,8 @@ for j = 1:numStations
     pressure{j} = cleanData(:,1);
     cranks{j} = cleanData(:,2); 
 
-    r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
-    rNorm{j} = r/D;
+    r{j} = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
+    rNorm{j} = r{j}/D;
     
     pInfty = pressure{j}(1); 
     uNorm{j} = sqrt(pressure{j}/pInfty); 
@@ -41,11 +47,15 @@ for j = 1:numStations
     % Create figure
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.4 1])
-    ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    xlim(uAxis)
+    ylim(rAxis)
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
-    ylabel('r/D')
+    if j==1
+        ylabel('r/D')
+    else
+        set(gca,'Yticklabel',[])
+    end
 
     hold on
     axval = axis;
@@ -53,11 +63,14 @@ for j = 1:numStations
     plot(axval(1:2), [0 0], 'k:') % centerline
     plot(uNorm{j}, rNorm{j}, ':b'); % flipped profile
 end
-sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
+fontsize(sizeFont,'points')
+% sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)),'fontsize',sizeTitle)
+figProfiles.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
 
-% allfig = figure;
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+%% overlapping velocity profiles
+figOverlap = figure;
+figOverlap.WindowState = 'maximized';
 for j = 1:numStations
     plot(uNorm{j}, -rNorm{j})
     hold on
@@ -65,8 +78,8 @@ end
 axval = axis;
 axis([axval(1:3) -axval(3)])
 plot(axval(1:2), [0 0], 'k:') % centerline
-xlim([0.4 1])
-ylim([-1.5 1.5])
+xlim(uAxis)
+ylim(rAxis)
 title(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
 xlabel('U/U_{\infty}')
 ylabel('r/D')
@@ -75,7 +88,9 @@ for j = 1:numStations
     legends{j} = strcat('x/D=', num2str(firstStation+j-1));
 end
 legend(legends)
+close
 
+%% Drag coefficient
 % Calculating drag force
 FDnorm = zeros(numStations,1); % placeholder for drag force normalized by Uinf and D
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
@@ -97,13 +112,13 @@ Anorm = A/D^2; % normalized disc area
 CD = 2*FDnorm/Anorm; % Drag coefficient
 
 figure
-stations = [firstStation:numStations+firstStation-1]'; 
-plot(stations, CD, 'k*')
-title('Calculated drag coefficient of disc A6')
+plot(stations, CD, 'ko')
+title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2str(S/D)))
 xlabel('x/D')
 ylabel('C_D')
+close
 
-% Calculate wake diameter, span, and mean wake velocity
+%% Calculate wake diameter, span, and mean wake velocity
 Dw = zeros(numStations,1); 
 Sw = Dw;
 Vw = Dw; 
@@ -117,7 +132,7 @@ for j=1:numStations
     while uNorm{j}(bottom) >= uMax
         bottom = bottom-1; 
     end
-    
+
     % finding wake core boundaries
     coreTop = top; 
     while uNorm{j}(coreTop)<uMax
@@ -131,7 +146,7 @@ for j=1:numStations
     % because the first set of while loops overshoot the outer edges
     top = top-1; 
     bottom = bottom+1; 
-    
+
     % wake diameter
     Dw(j) = rNorm{j}(bottom)-rNorm{j}(top); 
 
@@ -159,10 +174,10 @@ for j=1:numStations
     end
 end
 
-% Mean wake comparison with 1-D entrainment models
+%% Mean wake comparison with 1-D (tophat) entrainment models
 CT = mean(CD(1:5));
-EE = 0.14;
-xe = 0.5; 
+EE = 0.14; % 0.14
+xe = 0.5; % 0.5
 xmax = 10;
 if contains(path,'sam')
     addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
@@ -171,31 +186,30 @@ else
 end
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
-subplot(2,1,1)
-plot(stations,Vw,'k*')
+figVw = figure;
+% figVw.WindowState = 'maximized';
+% subplot(2,1,1)
+plot(stations,Vw,'ko','MarkerFaceColor','k')
 hold on
 plot(xD,VwFull,'b-','linewidth',1)
 xlim([0 stations(end)])
 ylim([0.5 1])
-title('Mean Wake Velocity')
+xlabel('x/D')
 ylabel('V_w/V_{\infty}')
 legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast','fontsize',14)
+fontsize(sizeFont,'points')
+% title(strcat('Mean Wake Velocity for S/D=',num2str(S/D)),'FontSize',sizeTitle)
+figVw.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+exportgraphics(figVw, strcat('SD0,', num2str(100*S/D), '_Vw.pdf'),'ContentType','vector','BackgroundColor','none')
 
 % % testing out a range of entrainment coefficients
-% for i=1:6
-%     EE = 0.12+0.02*i;
+% for i=1:4
+%     EE = 0.16+0.02*i;
 %     [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 %     plot(xD,VwFull)
 % end
 
-% % comparison with a linear fit
-% x = stations(6:8);
-% P = polyfit(x,Vw(6:8),1);
-% Vfit = P(1)*x+P(2);
-% plot(x,Vfit,'r-.');
-
+%{
 subplot(2,1,2)
 plot(stations,Dw/2,'k*',stations,Dw/2-Sw,'k*')
 hold on 
@@ -206,6 +220,7 @@ xlabel('x/D')
 ylabel('r/D')
 title('Wake Boundary')
 sgtitle(strcat('Tophat Wake Velocity and Boundaries for S/D=', num2str(S/D)))
+%}
 
 %% tophat model on top of velocity profiles
 
@@ -213,16 +228,20 @@ sgtitle(strcat('Tophat Wake Velocity and Boundaries for S/D=', num2str(S/D)))
 SwFullStations = zeros(j,1); 
 DwFullStations = SwFullStations; 
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+figTophat = figure;
+% figTophat.WindowState = 'maximized';
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.4 1])
-    ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    xlim(uAxis)
+    ylim(rAxis)
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
-    ylabel('r/D')
+    if j==1
+        ylabel('r/D')
+    else
+        set(gca,'Yticklabel',[])
+    end
 
     hold on
 
@@ -243,11 +262,15 @@ for j=1:numStations
 
     SwFullStations(j) = SwFull(i); % Value of Sw at each station (for Gaussian fitting)
 end
-sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')'))
+% set(gcf,'color','white')
+fontsize(sizeFont,'points')
+% sgtitle({strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with'); strcat('tophat profiles from Core Flux Conservation Model (E=', num2str(EE),', x_e=',num2str(xe),')')},'fontsize',sizeTitle)
+figTophat.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+exportgraphics(figTophat, strcat('SD0,', num2str(100*S/D), '_tophat.pdf'),'ContentType','vector','BackgroundColor','none')
 
 %% Gaussian fit on top of velocity profiles
 
-% Version 1: define deltaU and Rp using data, but define b using Sw from tophat model
+%% Version 1: define deltaU and Rp using data, but define b using Sw from tophat model
 % ufit = sum of two Gaussians
 % ufit = 1-deltaU*(exp((r-Rp)^2/b^2)+exp(same but r+Rp))
 % deltaU is the mean of the maximum velocity deficits for the two peaks
@@ -279,14 +302,15 @@ end
 rGauss = (-2.5:0.01:2.5)';
 ufit = zeros(length(rGauss),numStations); 
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+%{
+figHybrid = figure;
+figHybrid.WindowState = 'maximized';
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.4 1])
-    ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    xlim(uAxis)
+    ylim(rAxis)
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
     ylabel('r/D')
     
@@ -299,21 +323,27 @@ for j=1:numStations
     plot(ufit(:,j),rGauss)
 end
 sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical/tophat hybrid Gaussian profiles'))
+%}
 
 %% Version 2: define deltaU, Rp, and b using curve fitting
 doubleGauss = fittype(@(deltaU,Rp,b,rGauss) 1 - deltaU*(exp(-((rGauss-Rp)/b).^2)+exp(-((rGauss+Rp)/b).^2)),'independent','rGauss');
 gaussFit = cell(numStations,1);
 
-pcfig = figure;
-pcfig.WindowState = 'maximized';
+figGauss = figure;
+% figGauss.WindowState = 'maximized';
+% set(gcf,'color','white')
 for j=1:numStations
     subplot(1,numStations,j);
     plot(uNorm{j}, -rNorm{j}) % flipped because for this dataset, row 1 corresponds to top of wake, so this orients the velocity profile as it was in real life
-    xlim([0.4 1])
-    ylim([-1.5 1.5])
-    title(sprintf('x/D = %i', firstStation + j - 1))
+    xlim(uAxis)
+    ylim(rAxis)
+    title(sprintf('x/D = %i', stations(j)))
     xlabel('U/U_{\infty}')
-    ylabel('r/D')
+    if j==1
+        ylabel('r/D')
+    else
+        set(gca,'Yticklabel',[])
+    end
     
     startPoints = [0.5,(R-S/2)/D,S/D];
     gaussFit{j} = fit(rNorm{j},uNorm{j},doubleGauss,'StartPoint',startPoints);
@@ -327,6 +357,13 @@ for j=1:numStations
     else % if the wake is annular
         ufit(:,j) = 1 - deltaU(j).*(exp(-((rGauss-Rp(j))/b(j)).^2)+exp(-((rGauss+Rp(j))/b(j)).^2));
     end
-    plot(ufit(:,j),rGauss)
+    plot(ufit(:,j),rGauss, 'r--')
+    
+    if j==2
+        legend('Wind tunnel data', 'Gaussian fit','location','southeast')
+    end
 end
-sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'))
+fontsize(sizeFont,'points')
+sgtitle(strcat('Wind tunnel velocity profiles for S/D=', num2str(S/D),' compared with empirical Gaussian profiles'),'fontsize',sizeTitle)
+figGauss.Position = [100 200 520*[2.63 1]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+exportgraphics(figGauss, strcat('SD0,', num2str(100*S/D), '_Gaussian.pdf'),'ContentType','vector','BackgroundColor','none')
