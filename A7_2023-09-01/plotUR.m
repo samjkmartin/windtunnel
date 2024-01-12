@@ -1,4 +1,6 @@
 function figProfiles = plotUR(stations,S,D,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle)
+% plots velocity profiles with r/D on the vertical axis and u/Uinf on the horizontal axis
+% profiles at different x/D get their own subplots
 
 numStations = length(stations);
 

@@ -41,62 +41,14 @@ end
 figProfiles = plotUR(stations,S,D,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
 % exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
 
-% figOverlap = plotOverlap(stations,S,D,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
+figOverlap = plotOverlap(stations,S,D,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
+
+uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
+[CD, figCD] = dragCoeff(stations,S,D,uNorm,rNorm,uMax,14,14);
+
+[Vw, Dw, Sw] = meanWake(numStations,uNorm,rNorm,uMax);
 
 %{
-%% overlapping velocity profiles
-figOverlap = figure;
-figOverlap.WindowState = 'maximized';
-for j = 1:numStations
-    plot(uNorm{j}, -rNorm{j})
-    hold on
-end
-axval = axis;
-axis([axval(1:3) -axval(3)])
-plot(axval(1:2), [0 0], 'k:') % centerline
-xlim(uAxis)
-ylim(rAxis)
-title(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)))
-xlabel('U/U_{\infty}')
-if j==1
-    ylabel('r/D')
-else
-    set(gca,'Yticklabel',[])
-end
-legends = cell(numStations,1); 
-for j = 1:numStations
-    legends{j} = strcat('x/D=', stations(j));
-end
-legend(legends)
-close
-
-%% Drag coefficient
-% Calculating drag force
-FDnorm = zeros(numStations,1); % placeholder for drag force normalized by Uinf and D
-uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
-for j=1:numStations
-    u = uNorm{j};
-    rD = rNorm{j}; 
-    for i=1:length(u)
-        if u(i) < uMax
-            FDnorm(j) = FDnorm(j) + pi*abs(rD(i)-rD(i-1))*(abs(rD(i))*u(i)*(1-u(i))+abs(rD(i-1))*u(i-1)*(1-u(i-1))); 
-        end
-    end
-end 
-FDnorm = 0.5*FDnorm; % because we integrated from -R to R instead of 0 to R, so we double-counted
-
-% Calculating drag coefficients from drag force
-A = pi*(R^2 - (R-S)^2); % disc area, mm^2
-Anorm = A/D^2; % normalized disc area
-
-CD = 2*FDnorm/Anorm; % Drag coefficient
-
-figure
-plot(stations, CD, 'ko')
-title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2str(S/D)))
-xlabel('x/D')
-ylabel('C_D')
-close
 
 %% Calculate wake diameter, span, and mean wake velocity
 Dw = zeros(numStations,1); 
