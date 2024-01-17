@@ -1,4 +1,4 @@
-function [Vw, Dw, Sw, figMeanWake] = meanWake(stations,uNorm,rNorm,uMax);
+function [Vw, Dw, Sw, figMeanWake] = meanWake(stations,S,D,uNorm,rNorm,uMax,sizeFont,sizeTitle)
 
 numStations = length(stations);
 Dw = zeros(numStations,1);
@@ -62,5 +62,7 @@ xlim([0 stations(end)])
 ylim([0.5 1])
 xlabel('x/D')
 ylabel('V_w/V_{\infty}')
+fontsize(sizeFont,'points')
+title(strcat('Mean wake velocity of a porous annular disc with S/D=',num2str(S/D)),'fontsize',sizeTitle)
 
 end

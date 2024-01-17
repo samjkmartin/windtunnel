@@ -2,6 +2,14 @@ clc;
 clear all;
 close all;
 
+if contains(path,'sam')
+    addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/DataFunctions','-end')
+    addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
+else
+    addpath('/Users/smartin/Documents/MATLAB/Github/windtunnel/DataFunctions','-end')
+    addpath('/Users/smartin/Documents/MATLAB/Github/windtunnel/Models','-end')
+end
+
 % Information about the disc
 discName = 'A7';
 D = 50; % diameter in mm
@@ -46,7 +54,16 @@ figOverlap = plotOverlap(stations,S,D,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 [CD, figCD] = dragCoeff(stations,S,D,uNorm,rNorm,uMax,14,14);
 
-[Vw, Dw, Sw, figMeanWake] = meanWake(stations,uNorm,rNorm,uMax);
+[Vw, Dw, Sw, figMeanWake] = meanWake(stations,S,D,uNorm,rNorm,uMax,14,14);
+
+CT = mean(CD);
+EE = 0.12; 
+xe = 0.5; 
+xmax = 10;
+[xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
+
+figVw = compareVw(stations,S,D,Vw,xD,VwFull); 
+
 
 %{
 %% Mean wake comparison with 1-D (tophat) entrainment models

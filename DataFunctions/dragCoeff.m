@@ -24,7 +24,7 @@ Anorm = A/D^2; % normalized disc area
 CD = 2*FDnorm/Anorm; % Drag coefficient
 
 figCD = figure; 
-plot(stations, CD, 'ko')
+plot(stations, CD, 'ko','MarkerFaceColor','k')
 fontsize(sizeFont,'points')
 title(strcat('Calculated drag coefficient of porous annular disc with S/D=',num2str(S/D)),'fontsize',sizeTitle)
 xlabel('x/D')
