@@ -1,4 +1,4 @@
-function [Vw, Dw, Sw, figMeanWake] = meanWake(stations,S,D,uNorm,rNorm,uMax,sizeFont,sizeTitle)
+function [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,sizeFont,sizeTitle)
 
 numStations = length(stations);
 Dw = zeros(numStations,1);

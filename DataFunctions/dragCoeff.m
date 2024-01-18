@@ -1,4 +1,4 @@
-function [CD, figCD] = dragCoeff(stations,S,D,uNorm,rNorm,uMax,sizeFont,sizeTitle)
+function [CD, figCD] = dragCoeff(stations,D,S,uNorm,rNorm,uMax,sizeFont,sizeTitle)
 % calculates the drag coefficient of an annular disc at each station (x/D)
 % for which normalized velocity profile data is provided
 

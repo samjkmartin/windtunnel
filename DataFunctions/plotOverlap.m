@@ -1,4 +1,4 @@
-function figOverlap = plotOverlap(stations,S,D,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle)
+function figOverlap = plotOverlap(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle)
 % plots velocity profiles with r/D on the vertical axis and u/Uinf on the horizontal axis
 % velocity profiles for all x/D are plotted overlapping in one figure
 
