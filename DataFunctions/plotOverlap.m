@@ -6,7 +6,7 @@ numStations = length(stations);
 
 figOverlap = figure; 
 for j = 1:numStations
-    plot(uNorm{j}, -rNorm{j})
+    plot(uNorm{j}, rNorm{j})
     hold on
 end
 
