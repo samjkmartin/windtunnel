@@ -194,8 +194,9 @@ normHeightY   = [];
 % Arduino Attach – first string varies based on laptop and USB port used.
 % To find port info: Plug in Arduino -> Arduino App -> Tools -> Port
 % Raaghav right port: "/dev/cu.usbmodem2101"
-% Sam left port: "/dev/cu.usbmodem14101"
-% Sam right port "/dev/cu.usbmodem14201"
+% Sam 2015 left port: "/dev/cu.usbmodem14101"
+% Sam 2015 right port "/dev/cu.usbmodem14201"
+% Sam 2021 left upper port "/dev/cu.usbmodem101"
 a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
 
 % Configure Pin
