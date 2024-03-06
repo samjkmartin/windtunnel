@@ -1,0 +1,5 @@
+plotApp step selection fix idea
+
+Try moving the “move step forward” code to the beginning of the if statement. 
+
+Try initializing the value of stepSelector to 0 (line 155).  (This didn’t work the first time I tried). 
