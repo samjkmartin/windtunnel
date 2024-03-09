@@ -48,19 +48,19 @@ end
 
 % Plot formatting (set manually)
 uAxis = [0.5 1]; % U axis values for all velocity profile plots
-rAxis = [-1.5 1.5]; % r axis values for all velocity profile plots
+rAxis = [-2 2]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
 figProfiles = plotUR(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
-% exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
+exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
 
 figOverlap = plotOverlap(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
-% exportgraphics(figOverlap, strcat('SD0,', num2str(100*S/D), '_overlap.pdf'),'ContentType','vector','BackgroundColor','none')
+exportgraphics(figOverlap, strcat('SD0,', num2str(100*S/D), '_overlap.pdf'),'ContentType','vector','BackgroundColor','none')
 
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 [CD, figCD] = dragCoeff(stations,D,S,uNorm,rNorm,uMax,14,14);
-% exportgraphics(figCD, strcat('SD0,', num2str(100*S/D), '_CD.pdf'),'ContentType','vector','BackgroundColor','none')
+exportgraphics(figCD, strcat('SD0,', num2str(100*S/D), '_CD.pdf'),'ContentType','vector','BackgroundColor','none')
 
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close
@@ -72,7 +72,7 @@ xmax = 10;
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
 figVw = compareVw(stations,D,S,Vw,Dw,Sw,xD,VwFull,DwFull,SwFull,EE,xe,sizeFont,sizeTitle); 
-% exportgraphics(figVw, strcat('SD0,', num2str(100*S/D), '_Vw.pdf'),'ContentType','vector','BackgroundColor','none')
+exportgraphics(figVw, strcat('SD0,', num2str(100*S/D), '_Vw.pdf'),'ContentType','vector','BackgroundColor','none')
 
 % figTophat = plotTophat(stations,D,S,uNorm,rNorm,xD,VwFull,DwFull,SwFull,EE,xe,uAxis,rAxis,sizeFont,sizeTitle);
 % % exportgraphics(figTophat, strcat('SD0,', num2str(100*S/D), '_tophat.pdf'),'ContentType','vector','BackgroundColor','none')
