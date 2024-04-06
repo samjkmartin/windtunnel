@@ -19,11 +19,11 @@ R = D/2; % Disc radius
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [8,9];
+stations = [8,9,9.1];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [32.5,32.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = [32.5,32.25,33]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
@@ -40,15 +40,15 @@ for j=1:numStations
     r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
     
-    pInfty = pressure{j}(3); 
+    pInfty = max(pressure{j}(1:5)); 
     uNorm{j} = sqrt(pressure{j}/pInfty); 
 end
 
 %% Plotting and analyzing the data
 
 % Plot formatting (set manually)
-uAxis = [0.75 1]; % U axis values for all velocity profile plots
-rAxis = [-1.5 1.5]; % r axis values for all velocity profile plots
+uAxis = [0.75 inf]; % U axis values for all velocity profile plots
+rAxis = [-inf inf]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
@@ -56,16 +56,18 @@ figProfiles = plotUR(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle);
 % exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
 
 figOverlap = plotOverlap(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
+% exportgraphics(figOverlap, strcat('SD0,', num2str(100*S/D), '_overlap.pdf'),'ContentType','vector','BackgroundColor','none')
 
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 [CD, figCD] = dragCoeff(stations,D,S,uNorm,rNorm,uMax,14,14);
+% exportgraphics(figCD, strcat('SD0,', num2str(100*S/D), '_CD.pdf'),'ContentType','vector','BackgroundColor','none')
 
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close
 
 CT = mean(CD);
-EE = 0.24; 
-xe = 0.5; 
+EE = 0.2; %0.24; 
+xe = 0; %0.5; 
 xmax = 10;
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
