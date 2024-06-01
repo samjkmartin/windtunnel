@@ -1,4 +1,4 @@
-close all
+% close all
 clear all
 clc
 
@@ -10,7 +10,7 @@ quantify the accuracy of the mean pressure we record based on the amount
 of time we average over in order to get that mean. 
 
 This data from 4/11/24 was measured at a nadir of the S/D=0.2 annular wake (directly
-downstream of mid-span) for about 110 seconds. 
+downstream of mid-span) for about 110 seconds using the "fast" setting. 
 %}
 
 data = readmatrix('baud1200.csv'); 
@@ -40,7 +40,7 @@ dt = (time(end)-time(1))/(length(time)-1);
 % subplot(1,3,3)
 % plot(dt*(1:length(voltmeans)), diff); 
 
-avgtimerange = 2:60;
+avgtimerange = 1:60;
 maxdiffs = zeros(length(avgtimerange),1);
 for j=1:length(avgtimerange)
     avgtime = avgtimerange(j); 
@@ -61,4 +61,5 @@ xlabel('averaging time (s)')
 ylabel('\Deltap (inches of water)')
 title('Maximum excursion of recorded mean dynamic pressure from true mean')
 subtitle('S/D=0.2 wake nadir, fast transducer, 110 sec of data')
-
+% xlim([1 10])
+% ylim([0 .07])
