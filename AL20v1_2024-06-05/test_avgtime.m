@@ -8,9 +8,6 @@ a mean pressure value in the wind tunnel changes the maximum possible
 deviation of that mean value from the true mean. I.e. it allows us to
 quantify the accuracy of the mean pressure we record based on the amount
 of time we average over in order to get that mean. 
-
-This data from 4/11/24 was measured at a nadir of the S/D=0.2 annular wake (directly
-downstream of mid-span) for about 110 seconds using the "fast" setting. 
 %}
 
 data = readmatrix('slow_nadir.csv'); 
