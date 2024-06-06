@@ -13,7 +13,7 @@ This data from 4/11/24 was measured at a nadir of the S/D=0.2 annular wake (dire
 downstream of mid-span) for about 110 seconds using the "fast" setting. 
 %}
 
-data = readmatrix('baud1200.csv'); 
+data = readmatrix('slow_nadir.csv'); 
 voltage = data(2:end,2); 
 time = data(2:end,3) - data(2,3);
 
@@ -60,6 +60,6 @@ plot(avgtimerange, maxdiffs)
 xlabel('averaging time (s)')
 ylabel('\Deltap (inches of water)')
 title('Maximum excursion of recorded mean dynamic pressure from true mean')
-subtitle('S/D=0.2 wake nadir, fast transducer, 110 sec of data')
+subtitle('S/D=0.2 wake nadir, slow transducer, 120 sec of data')
 % xlim([1 10])
-ylim([0 .04])
+% ylim([0 .07])
