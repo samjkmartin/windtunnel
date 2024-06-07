@@ -1,3 +1,5 @@
+March 8, 2024
+
 plotApp step selection fix idea
 
 Try moving the “move step forward” code to the beginning of the if statement. 
@@ -7,3 +9,23 @@ Try initializing the value of stepSelector to 0 (line 155).  (This didn’t work
 Alternate idea: initialize the step as -2 and just remember to always start the step selector on 2. 
 
 Alternate idea: use an if statement to make it do something different for the first data point (but this could slow down the code). 
+
+
+June 7, 2024
+
+Note: create a new file named “measurePressure.m” when I start making changes. 
+
+The following workflow should be able to be implemented simply by changing the order of the sections of code in the function "recordButtonPushed()". 
+
+Idea for new workflow: 
+
+0. In code, step is initialized to -2, and step selector is initialized to 2. When taking the first data point, leave the probe in place and follow the instructions for step 3. Alternatively, step is initialized to 0, as is step selector (this would require adding a 0 to the step selector menu). 
+1. Move the probe to the desired location. 
+2. Using the step selector, indicate how many cranks you used to get to that location. (If the current step size is the same as the previous one, leave it the way it is.) 
+3. Press the "record" button. This will empty the moving-average array and start refilling it. When the array is full, it will automatically take the average and then save the value. At this point, the box will turn green, letting you know that it is safe to move the probe. 
+4. Repeat steps 1-3 until done. 
+
+Other additions that could be nice: 
+- Increase font size slightly
+- Add another box for live (or average) U/Uinf
+- Alternatively, in the "live value" box, stack both voltage and U/Uinf, like there already is in the "latest value" box. Same with the "average value" box. (Although, on second thought, calculating U/Uinf live could slow down the code. I should assess the code's speed if I do try that out.) 
