@@ -30,4 +30,6 @@ Other additions that could be nice:
 - Add another box for live (or average) U/Uinf
 - Alternatively, in the "live value" box, stack both voltage and U/Uinf, like there already is in the "latest value" box. Same with the "average value" box. (Although, on second thought, calculating U/Uinf live could slow down the code. I should assess the code's speed if I do try that out.) 
 
-REQUEST FROM PAOLO: record standard deviation on each mean velocity datapoint collected (i.e. std dev of all instantaneous velocities from the mean velocity)
+REQUEST FROM PAOLO: record standard deviation on each mean velocity datapoint collected (i.e. std dev of all instantaneous velocities from the mean velocity). I.e., 
+
+stdDevX  = [stdDevX, std(voltHolder)];
