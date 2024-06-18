@@ -23,25 +23,30 @@ stations = [2:9];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [33.75,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = [33.5,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
 pressure = cranks; 
+stdDevP = cranks; 
+pInfty = zeros(numStations,1);
 rNorm = cranks;
 uNorm = cranks; 
+stdDevU = cranks; 
 
 % convert raw data into normalized radial position and velocity
 for j=1:numStations
     data = readmatrix(strcat(discName,'S',num2str(stations(j)),'.csv'));
     cranks{j} = data(:,2); % number of cranks up from starting probe position
     pressure{j} = data(:,4); % dynamic pressure in inches of water
+    stdDevP{j} = data(:,5); % standard of dynamic pressure snapshots from mean
     
     r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
     
-    pInfty = pressure{j}(1); 
+    pInfty(j) = max(pressure{j}(1:5)); 
     uNorm{j} = sqrt(pressure{j}/pInfty); 
+    stdDevU{j} = 0.5*stdDevP{j}./sqrt(pressure{j}*pInfty(j));
 end
 
 %% Plotting and analyzing the data
@@ -56,9 +61,13 @@ figProfiles = plotUR(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle);
 % exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
 
 figOverlap = plotOverlap(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
+% exportgraphics(figOverlap, strcat('SD0,', num2str(100*S/D), '_overlap.pdf'),'ContentType','vector','BackgroundColor','none')
+
+figStdDev = plotStdDev(stations,D,S,stdDevP,stdDevU,rNorm,rAxis,sizeFont,sizeTitle); 
 
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 [CD, figCD] = dragCoeff(stations,D,S,uNorm,rNorm,uMax,14,14);
+% exportgraphics(figCD, strcat('SD0,', num2str(100*S/D), '_CD.pdf'),'ContentType','vector','BackgroundColor','none')
 
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close

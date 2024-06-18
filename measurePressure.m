@@ -14,10 +14,10 @@ m = (pressure2-pressure1)/(digital2 - digital1);
 diameter = 50;
 
 % Adjustable Variables
-sampleRate   = 0.04; % live value is updated every [] seconds
+sampleInterval   = 0.04; % live value is updated every [] seconds
 liveDelay    = 0.1;  % display live value every [] seconds
 avgTime     = 1;    % Default number of seconds over which average voltage is calculated
-avgSize      = avgTime/sampleRate;   % default [] slots of values in avg
+avgSize      = avgTime/sampleInterval;   % default [] slots of values in avg
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
@@ -209,7 +209,7 @@ set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress(src, event));
 stateLive   = 1;
 stateUpdate = 0;
 
-timeDiff    = sampleRate*10^(-5);
+timeDiff    = sampleInterval*10^(-5);
 
 while stateLive == 1
     time3 = now;
@@ -218,7 +218,7 @@ while stateLive == 1
     voltage             = readVoltage(a,'A0');
     voltHolder(1)       = [];
     voltHolder(avgSize) = voltage;
-    stateUpdate = stateUpdate + sampleRate;
+    stateUpdate = stateUpdate + sampleInterval;
 
     if stateUpdate >= liveDelay
         livePanelValue.Text = sprintf('%5.3f',voltage);
@@ -318,7 +318,7 @@ end
     end
 
     function avgTimeChanged()
-        avgSize = avgTime.Value/sampleRate;
+        avgSize = avgTime.Value/sampleInterval;
         voltHolder = zeros(avgSize,1);
     end
 
