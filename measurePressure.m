@@ -1,23 +1,23 @@
-function plotApp
+function measurePressure
 
 % Calibration points:
-water1   = 0;
+pressure1   = 0;
 digital1 = 0;
 
-water2   = 5;
+pressure2   = 5;
 digital2 = 5;
 
 % Calibration slope
-m = (water2-water1)/(digital2 - digital1);
+m = (pressure2-pressure1)/(digital2 - digital1);
 
 % Disc diameter in mm
 diameter = 50;
 
 % Adjustable Variables
-refreshDelay = 0.04; % live value is updated every [] seconds
+sampleRate   = 0.04; % live value is updated every [] seconds
 liveDelay    = 0.1;  % display live value every [] seconds
-avgDelay     = 1;    % Default number of seconds over which average voltage is calculated
-avgSize      = avgDelay/refreshDelay;   % default [] slots of values in avg
+avgTime     = 1;    % Default number of seconds over which average voltage is calculated
+avgSize      = avgTime/sampleRate;   % default [] slots of values in avg
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
@@ -27,7 +27,7 @@ white      = [1 1 1];          % RGB value for white
 
 % Create uifigure
 appWindow = uifigure('WindowState','maximized', ...
-    'Name','Plot App for Pressure Transducer by Raaghav');
+    'Name','App for Pressure Transducer by Raaghav and Sam');
 
 % Set universal font size
 fontsize(appWindow, 24, "points")
@@ -45,7 +45,7 @@ axisVoltStep.Layout.Row    = [2 5];
 axisVoltStep.Layout.Column = [1 2];
 axisVoltStep.Title.String  = 'Voltage Versus Steps';
 axisVoltStep.XLabel.String = 'Voltage (V)';
-axisVoltStep.YLabel.String = 'Steps (crank)';
+axisVoltStep.YLabel.String = 'Steps (cranks)';
 
 axisVoltStep.Title.Color   = white;
 axisVoltStep.XLabel.Color  = white;
@@ -53,25 +53,25 @@ axisVoltStep.YLabel.Color  = white;
 axisVoltStep.XColor        = white;
 axisVoltStep.YColor        = white;
 
-% Water versus height
-axisWaterHeight = uiaxes(grid);
-axisWaterHeight.Layout.Row    = [2 5];
-axisWaterHeight.Layout.Column = [3 4];
-axisWaterHeight.Title.String  = 'Inches of Water Versus Height';
-axisWaterHeight.YLabel.String = 'Height (mm)';
-axisWaterHeight.XLabel.String = 'Water (in)';
+% Pressure versus height
+axisPressureHeight = uiaxes(grid);
+axisPressureHeight.Layout.Row    = [2 5];
+axisPressureHeight.Layout.Column = [3 4];
+axisPressureHeight.Title.String  = 'Pressure Versus Height';
+axisPressureHeight.YLabel.String = 'Height (mm)';
+axisPressureHeight.XLabel.String = 'Pressure (in H_2O)';
 
-axisWaterHeight.Title.Color   = white;
-axisWaterHeight.XLabel.Color  = white;
-axisWaterHeight.YLabel.Color  = white;
-axisWaterHeight.XColor        = white;
-axisWaterHeight.YColor        = white;
+axisPressureHeight.Title.Color   = white;
+axisPressureHeight.XLabel.Color  = white;
+axisPressureHeight.YLabel.Color  = white;
+axisPressureHeight.XColor        = white;
+axisPressureHeight.YColor        = white;
 
 % Velocity versus height
 axisVelocityHeight = uiaxes(grid);
 axisVelocityHeight.Layout.Row    = [2 5];
 axisVelocityHeight.Layout.Column = [5 6];
-axisVelocityHeight.Title.String  = 'Normalized Velocity Versus Distance';
+axisVelocityHeight.Title.String  = 'Normalized Velocity Versus Normalized Height';
 axisVelocityHeight.XLabel.String = 'U/Uinf';
 axisVelocityHeight.YLabel.String = 'h/diameter';
 
@@ -173,7 +173,7 @@ avgTimePanel = uipanel(grid, ...
 avgTimePanel.Layout.Row = 1;
 avgTimePanel.Layout.Column = 4;
 avgTime = uieditfield(avgTimePanel, "numeric", ...
-    "Value", avgDelay, ...
+    "Value", avgTime, ...
     "ValueChangedFcn",@(avgLength,event) avgTimeChanged(),...
     'BackgroundColor',[247 111 142]/255);
 
@@ -183,9 +183,10 @@ voltX         = [];
 stepY         = [];
 avgVoltX      = [];
 
-% Initialize water - height plot data
-waterX        = [];
+% Initialize pressure - height plot data
+pressureX     = [];
 heightY       = [];
+stdDevPX      = [];
 
 % Initialize velocity - distance plot data
 normVelocityX = [];
@@ -208,7 +209,7 @@ set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress(src, event));
 stateLive   = 1;
 stateUpdate = 0;
 
-timeDiff    = refreshDelay*10^(-5);
+timeDiff    = sampleRate*10^(-5);
 
 while stateLive == 1
     time3 = now;
@@ -217,7 +218,7 @@ while stateLive == 1
     voltage             = readVoltage(a,'A0');
     voltHolder(1)       = [];
     voltHolder(avgSize) = voltage;
-    stateUpdate = stateUpdate + refreshDelay;
+    stateUpdate = stateUpdate + sampleRate;
 
     if stateUpdate >= liveDelay
         livePanelValue.Text = sprintf('%5.3f',voltage);
@@ -232,6 +233,7 @@ while stateLive == 1
     end
 
     while now <= time4
+        % disp(now-time3);
     end
 end
 
@@ -246,37 +248,42 @@ end
             % Store average value
             avgVoltX  = [avgVoltX, mean(voltHolder)];
 
-            % Define inches of water (time-averaged) and height in mm
-            water     = mean(voltHolder) * m;
+            % Define pressure (time-averaged) in inches of water and height in mm
+            pressureHolder  = voltHolder*m - digital1;
+            pressure = mean(pressureHolder);
+            stdDevP = std(pressureHolder);
+            
             height    = step * 3;
 
-            % Append the waterheight data to the cumulative data
-            waterX    = [waterX, water];
+            % Append the pressure height data to the cumulative data
+            pressureX = [pressureX, pressure];
             heightY   = [heightY, height];
+            stdDevPX  = [stdDevPX, stdDevP];
 
             % Normalized velocity and distance
-            maxWater     = max(waterX);
-            normVelocity = sqrt(water/maxWater);
+            maxPressure  = max(pressureX);
+            normVelocity = sqrt(pressure/maxPressure);
+            stdDevU = 0.5*stdDevP/sqrt(pressure*maxPressure);
             normHeight   = height/diameter;
 
-            % Append the velocitydistance data to the cumulative data
-            normVelocityX = [normVelocityX, normVelocity];
+            % Append the velocity distance data to the cumulative data
+            normVelocityX = sqrt(pressureX/maxPressure);
             normHeightY   = [normHeightY, normHeight];
 
             % change button color
             if recordButtonColor(1) <= 0.1
             else
-                recordButtonColor = [(1-step/75) step/75 0];
+                recordButtonColor = [(1-step/70) step/70 0];
                 recordButton.BackgroundColor = recordButtonColor;
             end
 
             % Update latest value
-            valuePanelValue.Text = sprintf(['Voltage is %5.3f' ...
-                '\n U/Uinf is %5.3f'],voltage,normVelocity);
+            valuePanelValue.Text = sprintf(['Pressure is %5.3f ± %5.3f' ...
+                '\n U/Uinf is %5.3f ± %5.3f'], pressure, stdDevP, normVelocity, stdDevU);
 
             % Plot the cumulative data
             plot(axisVoltStep, avgVoltX, stepY);
-            plot(axisWaterHeight, waterX, heightY)
+            plot(axisPressureHeight, pressureX, heightY)
             plot(axisVelocityHeight, normVelocityX, normHeightY)
 
             voltHolder = zeros(avgSize,1);
@@ -289,7 +296,7 @@ end
     end
 
     function saveButtonPushed()
-        data = [voltX(:), stepY(:), avgVoltX(:), waterX(:)];
+        data = [voltX(:), stepY(:), avgVoltX(:), pressureX(:), stdDevPX(:)];
 
         fileName1  = discType.Value;
         fileName2  = stationType.Value;
@@ -311,7 +318,7 @@ end
     end
 
     function avgTimeChanged()
-        avgSize = avgTime.Value/refreshDelay;
+        avgSize = avgTime.Value/sampleRate;
         voltHolder = zeros(avgSize,1);
     end
 

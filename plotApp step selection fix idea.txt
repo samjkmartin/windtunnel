@@ -29,7 +29,30 @@ Other additions that could be nice:
 - Increase font size slightly
 - Add another box for live (or average) U/Uinf
 - Alternatively, in the "live value" box, stack both voltage and U/Uinf, like there already is in the "latest value" box. Same with the "average value" box. (Although, on second thought, calculating U/Uinf live could slow down the code. I should assess the code's speed if I do try that out.) 
+- add a function ctrlZ. When you press z, it would remove the most recent entries in voltX, stepY, avgVoltX, pressureX, heightY, stdDevPX, normVelocityX, and normHeightY. 
 
-REQUEST FROM PAOLO: record standard deviation on each mean velocity datapoint collected (i.e. std dev of all instantaneous velocities from the mean velocity). I.e., 
+Do my eyes deceive me, or in the main Arduino while loop, is Raaghav dynamically changing the size of voltHolder every time?!?  I wonder if the code would run faster if I changed it to the following: 
+	voltage = readVoltage(a,'A0');
+	voltHolder = [voltHolder(2:end),voltage]; 
+
+MATLAB recommends changing from "now" to "datetime". I checked, and it does seem that it is, on average, slightly faster, although not by much (fractions of a ms). However, even more importantly, I think we may have been doing the timing incorrectly before. Based on what I'm reading online, I am starting to doubt that timeDiff = sampleRate*10^(-5) is the number of seconds we want in the "now" (serial date number) format.
+
+Here's how I would switch to doing things the datetime way:
+
+timeDiff = seconds(sampleRate); 
+while stateLive == 1
+	time3 = datetime; 
+	time4 = time3 + timeDiff; 
+	...
+	while datetime <= time4
+	end
+end
+
+Maybe this will make our code faster and more accurate!  
+
+
+DONE: 
+
+Request from Paolo: record standard deviation on each mean velocity datapoint collected (i.e. std dev of all instantaneous velocities from the mean velocity). I.e., 
 
 stdDevX  = [stdDevX, std(voltHolder)];
