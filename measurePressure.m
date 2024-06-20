@@ -14,7 +14,7 @@ m = (pressure2-pressure1)/(digital2 - digital1);
 diameter = 50;
 
 % Adjustable Variables
-sampleInterval   = 0.04; % live value is updated every [] seconds
+sampleInterval   = 0.05; % live value is updated every [] seconds
 liveDelay    = 0.1;  % display live value every [] seconds
 avgTime     = 1;    % Default number of seconds over which average voltage is calculated
 avgSize      = avgTime/sampleInterval;   % default [] slots of values in avg
@@ -115,9 +115,9 @@ valuePanel.Layout.Row    = 1;
 valuePanel.Layout.Column = 1;
 valuePanelValue = uilabel(valuePanel, ...
     "Text", 'waiting...', ...
-    "HorizontalAlignment", 'center', ...
+    "HorizontalAlignment", 'left', ...
     "VerticalAlignment", 'center');
-valuePanelValue.Position(3:4) = [100,44];
+valuePanelValue.Position(3:4) = [150,44];
 
 % Panel to display live value
 livePanel = uipanel(grid, ...
@@ -233,7 +233,7 @@ while stateLive == 1
     end
 
     while now <= time4
-        % disp(now-time3);
+        % disp((now-time3)*10^5); 
     end
 end
 
