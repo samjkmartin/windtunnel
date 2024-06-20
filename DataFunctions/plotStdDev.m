@@ -1,4 +1,4 @@
-function figStdDev = plotStdDev(stations,D,S,stdDevP,stdDevU,rNorm,rAxis,sizeFont,sizeTitle)
+function figStdDev = plotStdDev(stations,D,S,pInfty,pressure,stdDevP,uNorm,stdDevU,rNorm,rAxis,sizeFont,sizeTitle)
 % plots velocity profiles with r/D on the vertical axis and u/Uinf on the horizontal axis
 % profiles at different x/D get their own subplots
 
@@ -7,10 +7,10 @@ numStations = length(stations);
 figStdDev = figure; 
 for j=1:numStations
     subplot(1,numStations,j);
-    plot(stdDevP{j}, rNorm{j})
+    plot(stdDevP{j}/pInfty(j), rNorm{j})
     hold on
     plot(stdDevU{j}, rNorm{j})
-    legend('Dynamic Pressure (inches of water)', 'Normalized Velocity')
+    legend('\Deltap/p_{\infty}', '\DeltaU/U_{\infty}')
     ylim(rAxis)
     title(sprintf('x/D = %i', stations(j)))
     xlabel('Standard Deviation')

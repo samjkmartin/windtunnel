@@ -249,21 +249,21 @@ end
             avgVoltX  = [avgVoltX, mean(voltHolder)];
 
             % Define pressure (time-averaged) in inches of water and height in mm
-            pressureHolder  = voltHolder*m - digital1;
-            pressure = mean(pressureHolder);
-            stdDevP = std(pressureHolder);
+            pressureHolder  = voltHolder*m - digital1; 
+            pressure = mean(pressureHolder); % units: inches of water
+            stdDevP = std(pressureHolder); % units: inches of water
             
             height    = step * 3;
 
             % Append the pressure height data to the cumulative data
-            pressureX = [pressureX, pressure];
+            pressureX = [pressureX, pressure]; 
             heightY   = [heightY, height];
-            stdDevPX  = [stdDevPX, stdDevP];
+            stdDevPX  = [stdDevPX, stdDevP]; 
 
             % Normalized velocity and distance
             maxPressure  = max(pressureX);
-            normVelocity = sqrt(pressure/maxPressure);
-            stdDevU = 0.5*stdDevP/sqrt(pressure*maxPressure);
+            normVelocity = sqrt(pressure/maxPressure); % units: dimensionless (U/Uinf)
+            stdDevU = 0.5*stdDevP/sqrt(pressure*maxPressure); % units: dimensionless (DeltaU/Uinf)
             normHeight   = height/diameter;
 
             % Append the velocity distance data to the cumulative data

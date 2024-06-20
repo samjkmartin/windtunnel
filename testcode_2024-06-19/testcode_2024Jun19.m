@@ -11,19 +11,19 @@ else
 end
 
 %% Information about the disc (set manually)
-discName = 'A7';
+discName = 'empty';
 D = 50; % diameter in mm
-S = 20; % span in mm
+S = 25; % span in mm
 R = D/2; % Disc radius
 
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [2:9];
+stations = [6];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [33.5,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = [44];%,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
@@ -39,7 +39,7 @@ for j=1:numStations
     data = readmatrix(strcat(discName,'S',num2str(stations(j)),'.csv'));
     cranks{j} = data(:,2); % number of cranks up from starting probe position
     pressure{j} = data(:,4); % dynamic pressure in inches of water
-    stdDevP{j} = data(:,5); % standard deviation of dynamic pressure snapshots from mean
+    stdDevP{j} = data(:,5); % standard of dynamic pressure snapshots from mean
     
     r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
@@ -52,8 +52,8 @@ end
 %% Plotting and analyzing the data
 
 % Plot formatting (set manually)
-uAxis = [0.55 1]; % U axis values for all velocity profile plots
-rAxis = [-1.2 1.2]; % r axis values for all velocity profile plots
+uAxis = [0.5 1]; % U axis values for all velocity profile plots
+rAxis = [-inf inf]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
@@ -72,6 +72,7 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close
 
+%{
 CT = mean(CD);
 EE = 0.15; 
 xe = 0.5; 
@@ -86,3 +87,4 @@ figVw = compareVw(stations,D,S,Vw,Dw,Sw,xD,VwFull,DwFull,SwFull,EE,xe,sizeFont,s
 % 
 % figGaussFit = plotGaussFit(stations,D,S,uNorm,rNorm,xD,VwFull,DwFull,SwFull,EE,xe,uAxis,rAxis,sizeFont,sizeTitle);
 % % exportgraphics(figGauss, strcat('SD0,', num2str(100*S/D), '_Gaussian.pdf'),'ContentType','vector','BackgroundColor','none')
+%}
