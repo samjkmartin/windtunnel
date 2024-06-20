@@ -16,13 +16,13 @@ diameter = 50;
 % Adjustable Variables
 sampleInterval   = 0.05; % live value is updated every [] seconds
 liveDelay    = 0.1;  % display live value every [] seconds
-avgTime     = 1;    % Default number of seconds over which average voltage is calculated
-avgSize      = avgTime/sampleInterval;   % default [] slots of values in avg
+sampleTime     = 1;    % Default number of seconds over which average voltage is calculated
+sampleSize      = sampleTime/sampleInterval;   % default [] slots of values in avg
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
 step       = 0;                % Counts cranks
-voltHolder = zeros(1,avgSize); % Holds past voltage values
+voltHolder = zeros(sampleSize,1); % Holds past voltage values
 white      = [1 1 1];          % RGB value for white
 
 % Create uifigure
@@ -172,8 +172,8 @@ avgTimePanel = uipanel(grid, ...
     "BackgroundColor",[247 111 142]/255);
 avgTimePanel.Layout.Row = 1;
 avgTimePanel.Layout.Column = 4;
-avgTime = uieditfield(avgTimePanel, "numeric", ...
-    "Value", avgTime, ...
+sampleTime = uieditfield(avgTimePanel, "numeric", ...
+    "Value", sampleTime, ...
     "ValueChangedFcn",@(avgLength,event) avgTimeChanged(),...
     'BackgroundColor',[247 111 142]/255);
 
@@ -217,7 +217,7 @@ while stateLive == 1
 
     voltage             = readVoltage(a,'A0');
     voltHolder(1)       = [];
-    voltHolder(avgSize) = voltage;
+    voltHolder(sampleSize) = voltage;
     stateUpdate = stateUpdate + sampleInterval;
 
     if stateUpdate >= liveDelay
@@ -233,7 +233,7 @@ while stateLive == 1
     end
 
     while now <= time4
-        % disp((now-time3)*10^5); 
+        disp((now-time3)*10^5); 
     end
 end
 
@@ -285,8 +285,11 @@ end
             plot(axisVoltStep, avgVoltX, stepY);
             plot(axisPressureHeight, pressureX, heightY)
             plot(axisVelocityHeight, normVelocityX, normHeightY)
-
-            voltHolder = zeros(avgSize,1);
+            
+            figure
+            plot(pressureHolder)
+            
+            voltHolder = zeros(sampleSize,1);
 
             % Move step forward
             step      = step + str2double(stepSelector.Value);
@@ -318,8 +321,8 @@ end
     end
 
     function avgTimeChanged()
-        avgSize = avgTime.Value/sampleInterval;
-        voltHolder = zeros(avgSize,1);
+        sampleSize = sampleTime.Value/sampleInterval;
+        voltHolder = zeros(sampleSize,1);
     end
 
 % Define the onKeyPress function
