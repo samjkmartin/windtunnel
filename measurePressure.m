@@ -286,8 +286,8 @@ end
             plot(axisPressureHeight, pressureX, heightY)
             plot(axisVelocityHeight, normVelocityX, normHeightY)
             
-            % figure
-            % plot(pressureHolder)
+            figure
+            plot(pressureHolder)
             
             voltHolder = zeros(sampleSize,1);
 

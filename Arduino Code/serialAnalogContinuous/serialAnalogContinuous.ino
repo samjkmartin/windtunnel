@@ -7,7 +7,7 @@
 // For a 19200 baud rate, the max would be 600 values per second. 
 // However, in practice, the output rate may be lower (see "serialPlotterRandom" code). 
 void setup() {
-  Serial.begin(1200); // Initialize serial communication
+  Serial.begin(2400); // Initialize serial communication
 }
 
 void loop() {
