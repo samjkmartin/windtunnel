@@ -209,7 +209,7 @@ set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress(src, event));
 stateLive   = 1;
 stateUpdate = 0;
 
-timeDiff    = sampleInterval*10^(-5);
+timeDiff    = sampleInterval*(1/86400);
 
 while stateLive == 1
     time3 = now;
@@ -233,7 +233,7 @@ while stateLive == 1
     end
 
     while now <= time4
-        % disp((now-time3)*10^5); 
+        disp((now-time3)*86400); 
     end
 end
 
