@@ -172,7 +172,7 @@ avgTimePanel = uipanel(grid, ...
     "BackgroundColor",[247 111 142]/255);
 avgTimePanel.Layout.Row = 1;
 avgTimePanel.Layout.Column = 4;
-sampleTime = uieditfield(avgTimePanel, "numeric", ...
+avgTime = uieditfield(avgTimePanel, "numeric", ...
     "Value", sampleTime, ...
     "ValueChangedFcn",@(avgLength,event) avgTimeChanged(),...
     'BackgroundColor',[247 111 142]/255);
@@ -324,7 +324,7 @@ end
     end
 
     function avgTimeChanged()
-        sampleSize = sampleTime.Value/sampleInterval;
+        sampleSize = avgTime.Value/sampleInterval;
         voltHolder = zeros(sampleSize,1);
     end
 

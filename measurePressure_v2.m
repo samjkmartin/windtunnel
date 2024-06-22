@@ -172,7 +172,7 @@ avgTimePanel = uipanel(grid, ...
     "BackgroundColor",[247 111 142]/255);
 avgTimePanel.Layout.Row = 1;
 avgTimePanel.Layout.Column = 4;
-sampleTime = uieditfield(avgTimePanel, "numeric", ...
+avgTime = uieditfield(avgTimePanel, "numeric", ...
     "Value", sampleTime, ...
     "ValueChangedFcn",@(avgLength,event) avgTimeChanged(),...
     'BackgroundColor',[247 111 142]/255);
@@ -242,6 +242,19 @@ end
 
     function recordButtonPushed()
         if avgPanelValue.BackgroundColor == [0.25 .8 .4]
+            fastVoltHolder = zeros(avgTime.Value*50,1);
+            
+            count = 1;
+            time3 = datetime;
+            time4 = time3 + seconds(avgTime.Value);
+
+            while datetime < time4
+                fastVoltHolder(count) = readVoltage(a,'A1');
+                count = count + 1;
+            end
+            
+            assignin('base','fastVoltHolder',fastVoltHolder);
+
             % Define voltage
             voltage   = readVoltage(a,'A1');
 
@@ -324,7 +337,7 @@ end
     end
 
     function avgTimeChanged()
-        sampleSize = sampleTime.Value/sampleInterval;
+        sampleSize = avgTime.Value/sampleInterval;
         voltHolder = zeros(sampleSize,1);
     end
 
