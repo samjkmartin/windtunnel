@@ -11,7 +11,7 @@ void setup() {
 }
 
 void loop() {
-  int sensorValue = analogRead(A0); // get value from analog pin
+  int sensorValue = analogRead(A1); // get value from analog pin
   float voltage = float(sensorValue) * 5.000/1023.000; // convert to a decimal value between 0 and 5
   // Serial.print("Voltage:");
 //  Serial.print("/t"); 

@@ -198,10 +198,10 @@ normHeightY   = [];
 % Sam 2015 left port: "/dev/cu.usbmodem14101"
 % Sam 2015 right port "/dev/cu.usbmodem14201"
 % Sam 2021 left upper port "/dev/cu.usbmodem101"
-a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
+a = arduino("/dev/cu.usbmodem14201", "Uno", Libraries = "I2C");
 
 % Configure Pin
-configurePin(a,'A0','AnalogInput');
+configurePin(a,'A1','AnalogInput');
 
 % Set up the KeyPressFcn for the figure
 set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress(src, event));
@@ -215,7 +215,7 @@ while stateLive == 1
     time3 = now;
     time4 = time3 + timeDiff;
 
-    voltage             = readVoltage(a,'A0');
+    voltage             = readVoltage(a,'A1');
     voltHolder(1)       = [];
     voltHolder(sampleSize) = voltage;
     stateUpdate = stateUpdate + sampleInterval;
@@ -233,14 +233,14 @@ while stateLive == 1
     end
 
     while now <= time4
-        disp((now-time3)*86400); 
+        % disp((now-time3)*86400); 
     end
 end
 
     function recordButtonPushed()
         if avgPanelValue.BackgroundColor == [0.25 .8 .4]
             % Define voltage
-            voltage   = readVoltage(a,'A0');
+            voltage   = readVoltage(a,'A1');
 
             % Append the voltstep data to the cumulative data
             voltX     = [voltX, voltage];
