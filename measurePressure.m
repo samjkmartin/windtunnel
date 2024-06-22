@@ -209,15 +209,18 @@ set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress(src, event));
 stateLive   = 1;
 stateUpdate = 0;
 
-timeDiff    = sampleInterval*(1/86400);
+timeDiff    = seconds(sampleInterval);
 
 while stateLive == 1
-    time3 = now;
-    time4 = time3 + timeDiff;
-
+    time1 = datetime;
+    time2 = time1 + timeDiff;
+    
     voltage             = readVoltage(a,'A1');
     voltHolder(1)       = [];
     voltHolder(sampleSize) = voltage;
+    % voltHolder = [voltHolder(2:end);voltage]; % this is an alternate way
+    % % to update the array that doesn't involve dynamic resizing, although
+    % % it seems to be slower than Raaghav's way
     stateUpdate = stateUpdate + sampleInterval;
 
     if stateUpdate >= liveDelay
@@ -232,8 +235,8 @@ while stateLive == 1
         stateUpdate = 0;
     end
 
-    while now <= time4
-        % disp((now-time3)*86400); 
+    while datetime < time2
+        % disp(milliseconds(datetime-time1)); 
     end
 end
 
