@@ -15,7 +15,7 @@ diameter = 50;
 
 % Adjustable Variables
 sampleInterval   = 0.05; % live value is updated every [] seconds
-liveDelay    = 0.1;  % display live value every [] seconds
+liveDelay    = 0.25;  % display live value every [] seconds
 sampleTime     = 1;    % Default number of seconds over which average voltage is calculated
 sampleSize      = sampleTime/sampleInterval;   % default [] slots of values in avg
 
@@ -232,7 +232,7 @@ while stateLive == 1
         else
             avgPanelValue.BackgroundColor = [0.25 .8 .4];
         end
-        stateUpdate = 0;
+        stateUpdate = stateUpdate - sampleInterval;
     end
 
     while datetime < time2
@@ -276,7 +276,7 @@ end
             % change button color
             if recordButtonColor(1) <= 0.1
             else
-                recordButtonColor = [(1-step/70) step/70 0];
+                recordButtonColor = [(1-step/75) step/75 0];
                 recordButton.BackgroundColor = recordButtonColor;
             end
 
@@ -289,8 +289,8 @@ end
             plot(axisPressureHeight, pressureX, heightY)
             plot(axisVelocityHeight, normVelocityX, normHeightY)
             
-            figure
-            plot(pressureHolder)
+            % figure
+            % plot(pressureHolder)
             
             voltHolder = zeros(sampleSize,1);
 
