@@ -15,15 +15,19 @@ diameter = 50;
 
 % Adjustable Variables
 sampleInterval   = 0.05; % live value is updated every [] seconds
-liveDelay    = 0.1;  % display live value every [] seconds
-sampleTime     = 1;    % Default number of seconds over which average voltage is calculated
-sampleSize      = sampleTime/sampleInterval;   % default [] slots of values in avg
+liveDelay    = 0.25;  % display live value every [] seconds
+defaultSampleTime     = 1;    % Default number of seconds over which average voltage is calculated
+sampleSize      = defaultSampleTime/sampleInterval;   % default [] slots of values in avg
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
-step       = 0;                % Counts cranks
+step       = -2;                % Counts cranks
 voltHolder = zeros(sampleSize,1); % Holds past voltage values
 white      = [1 1 1];          % RGB value for white
+
+% define indicator colors for data collection
+green = [0.25 .8 .4]; 
+red = [0.85 .25 .4];
 
 % Create uifigure
 appWindow = uifigure('WindowState','maximized', ...
@@ -142,6 +146,7 @@ avgPanelValue = uilabel(avgPanel, ...
     "HorizontalAlignment", 'center', ...
     "VerticalAlignment", 'center');
 avgPanelValue.Position(3:4) = [80 44];
+avgPanelValue.BackgroundColor = green;
 
 % Dropdown menu that chooses steps taken with crank
 stepPanel = uipanel(grid, ...
@@ -172,11 +177,10 @@ avgTimePanel = uipanel(grid, ...
     "BackgroundColor",[247 111 142]/255);
 avgTimePanel.Layout.Row = 1;
 avgTimePanel.Layout.Column = 4;
-avgTime = uieditfield(avgTimePanel, "numeric", ...
-    "Value", sampleTime, ...
+sampleTime = uieditfield(avgTimePanel, "numeric", ...
+    "Value", defaultSampleTime, ...
     "ValueChangedFcn",@(avgLength,event) avgTimeChanged(),...
     'BackgroundColor',[247 111 142]/255);
-
 
 % Initialize voltage - step plot data
 voltX         = [];
@@ -226,13 +230,7 @@ while stateLive == 1
     if stateUpdate >= liveDelay
         livePanelValue.Text = sprintf('%5.3f',voltage);
         avgPanelValue.Text  = sprintf('%5.3f',mean(voltHolder));
-
-        if voltHolder(1) == 0
-            avgPanelValue.BackgroundColor = [0.85 .25 .4];
-        else
-            avgPanelValue.BackgroundColor = [0.25 .8 .4];
-        end
-        stateUpdate = 0;
+        stateUpdate = stateUpdate - sampleInterval;
     end
 
     while datetime < time2
@@ -241,26 +239,33 @@ while stateLive == 1
 end
 
     function recordButtonPushed()
-        if avgPanelValue.BackgroundColor == [0.25 .8 .4]
-            fastVoltHolder = zeros(avgTime.Value*50,1);
+        if avgPanelValue.BackgroundColor == green
             
-            count = 1;
-            time3 = datetime;
-            time4 = time3 + seconds(avgTime.Value);
+            % change background color to red so that you don't move the
+            % probe while data collection is in progress
+            avgPanelValue.BackgroundColor = red;
 
-            while datetime < time4
-                fastVoltHolder(count) = readVoltage(a,'A1');
-                count = count + 1;
+            % Move step forward
+            step      = step + str2double(stepSelector.Value);
+
+            % clear the voltage array before collecting a sample
+            voltHolder = zeros(sampleSize,1);
+            
+            % collect the sample (fill the array of voltages to be averaged)
+            for i=1:sampleSize
+                time3 = datetime;
+                time4 = time3 + timeDiff;
+                
+                voltHolder(i) = readVoltage(a,'A1');
+
+                while datetime < time4
+                    % disp(milliseconds(datetime-time1));
+                end
             end
-            
-            assignin('base','fastVoltHolder',fastVoltHolder);
-
-            % Define voltage
-            voltage   = readVoltage(a,'A1');
 
             % Append the voltstep data to the cumulative data
-            voltX     = [voltX, voltage];
-            stepY     = [stepY, step];
+            voltX     = [voltX, voltHolder(1)]; % instantaneous voltage when the record button was first pushed
+            stepY     = [stepY, step]; % number of cranks
             % Store average value
             avgVoltX  = [avgVoltX, mean(voltHolder)];
 
@@ -287,9 +292,8 @@ end
             normHeightY   = [normHeightY, normHeight];
 
             % change button color
-            if recordButtonColor(1) <= 0.1
-            else
-                recordButtonColor = [(1-step/70) step/70 0];
+            if recordButtonColor(1) > 0.1
+                recordButtonColor = [(1-step/75) step/75 0];
                 recordButton.BackgroundColor = recordButtonColor;
             end
 
@@ -302,13 +306,12 @@ end
             plot(axisPressureHeight, pressureX, heightY)
             plot(axisVelocityHeight, normVelocityX, normHeightY)
             
-            figure
-            plot(pressureHolder)
+            % figure
+            % plot(pressureHolder)
             
-            voltHolder = zeros(sampleSize,1);
-
-            % Move step forward
-            step      = step + str2double(stepSelector.Value);
+            % change the background color back to green to signal that data
+            % has been collected and it is now okay to move the probe
+            avgPanelValue.BackgroundColor = green; 
         else
             recordButton.BackgroundColor = [0.9 0.9 0.2];
         end
@@ -337,7 +340,7 @@ end
     end
 
     function avgTimeChanged()
-        sampleSize = avgTime.Value/sampleInterval;
+        sampleSize = sampleTime.Value/sampleInterval;
         voltHolder = zeros(sampleSize,1);
     end
 
