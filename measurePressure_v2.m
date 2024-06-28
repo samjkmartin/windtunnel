@@ -306,8 +306,8 @@ end
             plot(axisPressureHeight, pressureX, heightY)
             plot(axisVelocityHeight, normVelocityX, normHeightY)
             
-            figure
-            plot(pressureHolder)
+            % figure
+            % plot(pressureHolder)
             
             % change the background color back to green to signal that data
             % has been collected and it is now okay to move the probe
