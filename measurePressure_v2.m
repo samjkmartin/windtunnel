@@ -14,10 +14,12 @@ m = (pressure2-pressure1)/(digital2 - digital1);
 diameter = 50;
 
 % Adjustable Variables
-sampleInterval   = 0.05; % live value is updated every [] seconds
-liveDelay    = 0.25;  % display live value every [] seconds
-defaultSampleTime     = 1;    % Default number of seconds over which average voltage is calculated
-sampleSize      = defaultSampleTime/sampleInterval;   % default [] slots of values in avg
+sampleInterval = 0.05; % live value is updated every [] seconds
+liveDelay = 0.25;  % display live value every [] seconds
+defaultSampleTime = 10;    % Default number of seconds over which data is recorded
+sampleSize = defaultSampleTime/sampleInterval;   % default [] slots of values in sample
+avgTime = 3; % Number of seconds over which rolling average pressure and velocity are calculated
+avgSize = avgTime/sampleInterval; 
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
@@ -111,42 +113,65 @@ endButton = uibutton(grid, ...
 endButton.Layout.Row    = 6;
 endButton.Layout.Column = 6;
 
-% Panel to display latest value
-valuePanel = uipanel(grid, ...
-    "Title","Latest Value", ...
+% Panel to display latest recorded value
+recordedPanel = uipanel(grid, ...
+    "Title","Latest Recorded Values", ...
     "BackgroundColor",[148 191 190]/255);
-valuePanel.Layout.Row    = 1;
-valuePanel.Layout.Column = 1;
-valuePanelValue = uilabel(valuePanel, ...
+recordedPanel.Layout.Row    = 1;
+recordedPanel.Layout.Column = 4;
+recordedPanelValue = uilabel(recordedPanel, ...
     "Text", 'waiting...', ...
     "HorizontalAlignment", 'left', ...
     "VerticalAlignment", 'center');
-valuePanelValue.Position(3:4) = [150,44];
+recordedPanelValue.Position(3:4) = [150,44];
+recordedPanelValue.BackgroundColor = green;
 
-% Panel to display live value
+% Panel to display live voltage value
 livePanel = uipanel(grid, ...
-    "Title","Live Value", ...
+    "Title","Live Voltage Reading", ...
     "BackgroundColor",[148 191 190]/255);
 livePanel.Layout.Row    = 1;
-livePanel.Layout.Column = 2;
+livePanel.Layout.Column = 1;
 livePanelValue = uilabel(livePanel, ...
     "Text", 'waiting...', ...
     "HorizontalAlignment", 'center', ...
     "VerticalAlignment", 'center');
 livePanelValue.Position(3:4) = [80 44];
 
-% Panel to display average value
-avgPanel = uipanel(grid, ...
-    "Title","Average Value", ...
+% Panel to display time-averaged pressure value
+pressurePanel = uipanel(grid, ...
+    "Title","Pressure (3-sec moving avg)", ...
     "BackgroundColor",[148 191 190]/255);
-avgPanel.Layout.Row    = 1;
-avgPanel.Layout.Column = 3;
-avgPanelValue = uilabel(avgPanel, ...
+pressurePanel.Layout.Row    = 1;
+pressurePanel.Layout.Column = 2;
+pressurePanelValue = uilabel(pressurePanel, ...
     "Text", 'waiting...', ...
     "HorizontalAlignment", 'center', ...
     "VerticalAlignment", 'center');
-avgPanelValue.Position(3:4) = [80 44];
-avgPanelValue.BackgroundColor = green;
+pressurePanelValue.Position(3:4) = [80 44];
+
+% Panel to display time-averaged normalized velocity value
+velocityPanel = uipanel(grid, ...
+    "Title","U/Uinf (3-sec moving avg)", ...
+    "BackgroundColor",[148 191 190]/255);
+velocityPanel.Layout.Row    = 1;
+velocityPanel.Layout.Column = 3;
+velocityPanelValue = uilabel(velocityPanel, ...
+    "Text", 'waiting...', ...
+    "HorizontalAlignment", 'center', ...
+    "VerticalAlignment", 'center');
+velocityPanelValue.Position(3:4) = [80 44];
+
+% Field that allows you to change sample recording time in seconds
+sampleTimePanel = uipanel(grid, ...
+    "Title","Recording Time (s)", ...
+    "BackgroundColor",[247 111 142]/255);
+sampleTimePanel.Layout.Row = 1;
+sampleTimePanel.Layout.Column = 5;
+sampleTime = uieditfield(sampleTimePanel, "numeric", ...
+    "Value", defaultSampleTime, ...
+    "ValueChangedFcn",@(sampleLength,event) sampleTimeChanged(),...
+    'BackgroundColor',[247 111 142]/255);
 
 % Dropdown menu that chooses steps taken with crank
 stepPanel = uipanel(grid, ...
@@ -170,17 +195,6 @@ stationType = uieditfield(grid, "Value", 'set station', ...
     'BackgroundColor',[247 111 142]/255);
 stationType.Layout.Row = 6;
 stationType.Layout.Column = 4;
-
-% Field that allows you to change rolling avg time in seconds
-avgTimePanel = uipanel(grid, ...
-    "Title","Averaging Time (s)", ...
-    "BackgroundColor",[247 111 142]/255);
-avgTimePanel.Layout.Row = 1;
-avgTimePanel.Layout.Column = 4;
-sampleTime = uieditfield(avgTimePanel, "numeric", ...
-    "Value", defaultSampleTime, ...
-    "ValueChangedFcn",@(avgLength,event) avgTimeChanged(),...
-    'BackgroundColor',[247 111 142]/255);
 
 % Initialize voltage - step plot data
 voltX         = [];
@@ -229,7 +243,7 @@ while stateLive == 1
 
     if stateUpdate >= liveDelay
         livePanelValue.Text = sprintf('%5.3f',voltage);
-        avgPanelValue.Text  = sprintf('%5.3f',mean(voltHolder));
+        pressurePanelValue.Text  = sprintf('%5.3f',mean(voltHolder));
         stateUpdate = stateUpdate - sampleInterval;
     end
 
@@ -239,11 +253,11 @@ while stateLive == 1
 end
 
     function recordButtonPushed()
-        if avgPanelValue.BackgroundColor == green
+        if recordedPanelValue.BackgroundColor == green
             
             % change background color to red so that you don't move the
             % probe while data collection is in progress
-            avgPanelValue.BackgroundColor = red;
+            recordedPanelValue.BackgroundColor = red;
 
             % Move step forward
             step      = step + str2double(stepSelector.Value);
@@ -298,7 +312,7 @@ end
             end
 
             % Update latest value
-            valuePanelValue.Text = sprintf(['Pressure is %5.3f ± %5.3f' ...
+            recordedPanelValue.Text = sprintf(['Pressure is %5.3f ± %5.3f' ...
                 '\n U/Uinf is %5.3f ± %5.3f'], pressure, stdDevP, normVelocity, stdDevU);
 
             % Plot the cumulative data
@@ -311,7 +325,7 @@ end
             
             % change the background color back to green to signal that data
             % has been collected and it is now okay to move the probe
-            avgPanelValue.BackgroundColor = green; 
+            recordedPanelValue.BackgroundColor = green; 
         else
             recordButton.BackgroundColor = [0.9 0.9 0.2];
         end
@@ -335,11 +349,11 @@ end
         stateLive = 0;
         endButton.Text      = 'Live Ended';
         livePanelValue.Text = 'Live Ended';
-        avgPanelValue.Text  = 'Live Ended';
+        pressurePanelValue.Text  = 'Live Ended';
         endButton.BackgroundColor = [252 207 149]/255;
     end
 
-    function avgTimeChanged()
+    function sampleTimeChanged()
         sampleSize = sampleTime.Value/sampleInterval;
         voltHolder = zeros(sampleSize,1);
     end

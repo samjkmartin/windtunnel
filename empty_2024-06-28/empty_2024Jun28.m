@@ -19,11 +19,11 @@ R = D/2; % Disc radius
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [2];
+stations = [2,4,6,8];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [33.5];%,33.5,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = ones(1,4)*35; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
@@ -52,7 +52,7 @@ end
 %% Plotting and analyzing the data
 
 % Plot formatting (set manually)
-uAxis = [0.9 1]; % U axis values for all velocity profile plots
+uAxis = [0.98 1.005]; % U axis values for all velocity profile plots
 rAxis = [-inf inf]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
