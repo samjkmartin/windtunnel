@@ -20,11 +20,13 @@ defaultSampleTime = 10;    % Default number of seconds over which data is record
 sampleSize = defaultSampleTime/sampleInterval;   % default [] slots of values in sample
 avgTime = 3; % Number of seconds over which rolling average pressure and velocity are calculated
 avgSize = avgTime/sampleInterval; 
+maxPressure = 4.5; % initial value so that live velocity will display before the first data is recorded
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
 step       = -2;                % Counts cranks
-voltHolder = zeros(sampleSize,1); % Holds past voltage values
+sampleHolder = zeros(sampleSize,1); % Holds voltage values during data recording
+liveHolder = zeros(avgSize,1); % Holds voltage values during main (live update) loop
 white      = [1 1 1];          % RGB value for white
 
 % define indicator colors for data collection
@@ -121,9 +123,9 @@ recordedPanel.Layout.Row    = 1;
 recordedPanel.Layout.Column = 4;
 recordedPanelValue = uilabel(recordedPanel, ...
     "Text", 'waiting...', ...
-    "HorizontalAlignment", 'left', ...
+    "HorizontalAlignment", 'center', ...
     "VerticalAlignment", 'center');
-recordedPanelValue.Position(3:4) = [150,44];
+recordedPanelValue.Position([1,3,4]) = [50,150,44];
 recordedPanelValue.BackgroundColor = green;
 
 % Panel to display live voltage value
@@ -140,7 +142,7 @@ livePanelValue.Position(3:4) = [80 44];
 
 % Panel to display time-averaged pressure value
 pressurePanel = uipanel(grid, ...
-    "Title","Pressure (3-sec moving avg)", ...
+    "Title","Pressure (in water) (3-sec moving avg)", ...
     "BackgroundColor",[148 191 190]/255);
 pressurePanel.Layout.Row    = 1;
 pressurePanel.Layout.Column = 2;
@@ -216,7 +218,7 @@ normHeightY   = [];
 % Sam 2015 left port: "/dev/cu.usbmodem14101"
 % Sam 2015 right port "/dev/cu.usbmodem14201"
 % Sam 2021 left upper port "/dev/cu.usbmodem101"
-a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
+a = arduino("/dev/cu.usbmodem14201", "Uno", Libraries = "I2C");
 
 % Configure Pin
 configurePin(a,'A1','AnalogInput');
@@ -233,17 +235,28 @@ while stateLive == 1
     time1 = datetime;
     time2 = time1 + timeDiff;
     
+    % Collect data to be displayed live
     voltage             = readVoltage(a,'A1');
-    voltHolder(1)       = [];
-    voltHolder(sampleSize) = voltage;
+    liveHolder(1)       = [];
+    liveHolder(avgSize) = voltage;
     % voltHolder = [voltHolder(2:end);voltage]; % this is an alternate way
     % % to update the array that doesn't involve dynamic resizing, although
     % % it seems to be slower than Raaghav's way
+    
+    % Define pressure (time-averaged) in inches of water and height in mm
+    livePressureHolder  = liveHolder*m - digital1; 
+    livePressure = mean(livePressureHolder); % units: inches of water
+    liveStdDevP = std(livePressureHolder); % units: inches of water
+    
+    % Normalized velocity and distance
+    liveNormVelocity = sqrt(livePressure/maxPressure); % units: dimensionless (U/Uinf)
+    liveStdDevU = 0.5*liveStdDevP/sqrt(livePressure*maxPressure); % units: dimensionless (DeltaU/Uinf)
+    
     stateUpdate = stateUpdate + sampleInterval;
-
     if stateUpdate >= liveDelay
         livePanelValue.Text = sprintf('%5.3f',voltage);
-        pressurePanelValue.Text  = sprintf('%5.3f',mean(voltHolder));
+        pressurePanelValue.Text  = sprintf('%5.3f ± %5.3f',livePressure,liveStdDevP);
+        velocityPanelValue.Text  = sprintf('%5.3f ± %5.3f',liveNormVelocity,liveStdDevU);
         stateUpdate = stateUpdate - sampleInterval;
     end
 
@@ -263,28 +276,28 @@ end
             step      = step + str2double(stepSelector.Value);
 
             % clear the voltage array before collecting a sample
-            voltHolder = zeros(sampleSize,1);
+            sampleHolder = zeros(sampleSize,1);
             
             % collect the sample (fill the array of voltages to be averaged)
             for i=1:sampleSize
                 time3 = datetime;
                 time4 = time3 + timeDiff;
                 
-                voltHolder(i) = readVoltage(a,'A1');
+                sampleHolder(i) = readVoltage(a,'A1');
 
                 while datetime < time4
-                    % disp(milliseconds(datetime-time1));
+                    % disp(milliseconds(datetime-time3));
                 end
             end
 
             % Append the voltstep data to the cumulative data
-            voltX     = [voltX, voltHolder(1)]; % instantaneous voltage when the record button was first pushed
+            voltX     = [voltX, sampleHolder(1)]; % instantaneous voltage when the record button was first pushed
             stepY     = [stepY, step]; % number of cranks
             % Store average value
-            avgVoltX  = [avgVoltX, mean(voltHolder)];
+            avgVoltX  = [avgVoltX, mean(sampleHolder)];
 
             % Define pressure (time-averaged) in inches of water and height in mm
-            pressureHolder  = voltHolder*m - digital1; 
+            pressureHolder  = sampleHolder*m - digital1; 
             pressure = mean(pressureHolder); % units: inches of water
             stdDevP = std(pressureHolder); % units: inches of water
             
@@ -355,7 +368,7 @@ end
 
     function sampleTimeChanged()
         sampleSize = sampleTime.Value/sampleInterval;
-        voltHolder = zeros(sampleSize,1);
+        sampleHolder = zeros(sampleSize,1);
     end
 
 % Define the onKeyPress function
