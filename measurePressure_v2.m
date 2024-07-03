@@ -15,7 +15,7 @@ diameter = 50;
 
 % Adjustable Variables
 sampleInterval = 0.05; % live value is updated every [] seconds
-liveDelay = 0.25;  % display live value every [] seconds
+liveDelay = 0.2;  % display live value every [] seconds
 defaultSampleTime = 10;    % Default number of seconds over which data is recorded
 sampleSize = defaultSampleTime/sampleInterval;   % default [] slots of values in sample
 avgTime = 3; % Number of seconds over which rolling average pressure and velocity are calculated
@@ -143,7 +143,7 @@ livePanelValue.Position(3:4) = [80 44];
 
 % Panel to display time-averaged pressure value
 pressurePanel = uipanel(grid, ...
-    "Title","Pressure (in water) (3-sec moving avg)", ...
+    "Title",['Pressure (in water) (' num2str(avgTime) '-sec moving avg)'], ...
     "BackgroundColor",[148 191 190]/255);
 pressurePanel.Layout.Row    = 1;
 pressurePanel.Layout.Column = 2;
@@ -155,7 +155,7 @@ pressurePanelValue.Position(3:4) = [80 44];
 
 % Panel to display time-averaged normalized velocity value
 velocityPanel = uipanel(grid, ...
-    "Title","U/Uinf (3-sec moving avg)", ...
+    "Title",['U/Uinf (' num2str(avgTime) '-sec moving avg)'], ...
     "BackgroundColor",[148 191 190]/255);
 velocityPanel.Layout.Row    = 1;
 velocityPanel.Layout.Column = 3;
@@ -253,16 +253,20 @@ while stateLive == 1
     liveNormVelocity = sqrt(livePressure/maxPressure); % units: dimensionless (U/Uinf)
     liveStdDevU = 0.5*liveStdDevP/sqrt(livePressure*maxPressure); % units: dimensionless (DeltaU/Uinf)
     
+    % update live displays every [liveDelay] seconds
     stateUpdate = stateUpdate + sampleInterval;
     if stateUpdate >= liveDelay
         livePanelValue.Text = sprintf('%5.3f',voltage);
         pressurePanelValue.Text  = sprintf('%5.3f ± %5.3f',livePressure,liveStdDevP);
         velocityPanelValue.Text  = sprintf('%5.3f ± %5.3f',liveNormVelocity,liveStdDevU);
-        stateUpdate = stateUpdate - sampleInterval;
+        stateUpdate = stateUpdate - liveDelay;
     end
 
+    % if datetime < time2
+    %     disp(stateUpdate);
+    % end
+
     while datetime < time2
-        % disp(milliseconds(datetime-time1)); 
     end
 end
 
@@ -280,11 +284,23 @@ end
             sampleHolder = zeros(sampleSize,1);
             
             % collect the sample (fill the array of voltages to be averaged)
+            stateUpdate = 0;
             for i=1:sampleSize
                 time3 = datetime;
                 time4 = time3 + timeDiff;
                 
-                sampleHolder(i) = readVoltage(a,'A1');
+                voltage = readVoltage(a,'A1');
+                sampleHolder(i) = voltage;
+                
+                % update live voltage display every [liveDelay] seconds
+                stateUpdate = stateUpdate + sampleInterval;
+                if stateUpdate >= liveDelay
+                    livePanelValue.Text = sprintf('%5.3f',voltage);
+                    stateUpdate = stateUpdate - liveDelay;
+                    % if datetime < time4
+                    %     disp(i);
+                    % end
+                end
 
                 while datetime < time4
                     % disp(milliseconds(datetime-time3));
