@@ -232,7 +232,7 @@ while stateLive == 1
         else
             avgPanelValue.BackgroundColor = [0.25 .8 .4];
         end
-        stateUpdate = stateUpdate - sampleInterval;
+        stateUpdate = stateUpdate - liveDelay;
     end
 
     while datetime < time2
