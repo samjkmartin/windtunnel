@@ -219,7 +219,7 @@ normHeightY   = [];
 % Sam 2015 left port: "/dev/cu.usbmodem14101"
 % Sam 2015 right port "/dev/cu.usbmodem14201"
 % Sam 2021 left upper port "/dev/cu.usbmodem101"
-a = arduino("/dev/cu.usbmodem14201", "Uno", Libraries = "I2C");
+a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
 
 % Configure Pin
 configurePin(a,'A1','AnalogInput');
@@ -350,8 +350,8 @@ end
             plot(axisPressureHeight, pressureX, heightY)
             plot(axisVelocityHeight, normVelocityX, normHeightY)
             
-            % figure
-            % plot(pressureHolder)
+            figure
+            plot(pressureHolder)
             
             % change the background color back to green to signal that data
             % has been collected and it is now okay to move the probe
