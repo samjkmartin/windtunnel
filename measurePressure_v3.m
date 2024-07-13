@@ -1,4 +1,4 @@
-function measurePressure_v2
+function measurePressure_v3
 
 % Calibration points:
 pressure1   = 0;
@@ -222,140 +222,145 @@ normHeightY   = [];
 a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
 
 % Configure Pin
-configurePin(a,'A1','AnalogInput');
+configurePin(a,'A0','AnalogInput');
 
 % Set up the KeyPressFcn for the figure
 set(appWindow, 'KeyPressFcn', @(src, event) onKeyPress(src, event));
 
 stateLive   = 1;
 stateUpdate = 0;
+stateRecord = 0; 
 
 timeDiff    = seconds(sampleInterval);
 
 while stateLive == 1
-    time1 = datetime;
-    time2 = time1 + timeDiff;
-    
-    % Collect data to be displayed live
-    voltage             = readVoltage(a,'A1');
-    liveHolder(1)       = [];
-    liveHolder(avgSize) = voltage;
-    % voltHolder = [voltHolder(2:end);voltage]; % this is an alternate way
-    % % to update the array that doesn't involve dynamic resizing, although
-    % % it seems to be slower than Raaghav's way
-    
-    % Define pressure (time-averaged) in inches of water and height in mm
-    livePressureHolder  = liveHolder*m - digital1; 
-    livePressure = mean(livePressureHolder); % units: inches of water
-    liveStdDevP = std(livePressureHolder); % units: inches of water
-    
-    % Normalized velocity and distance
-    liveNormVelocity = sqrt(livePressure/maxPressure); % units: dimensionless (U/Uinf)
-    liveStdDevU = 0.5*liveStdDevP/sqrt(livePressure*maxPressure); % units: dimensionless (DeltaU/Uinf)
-    
-    % update live displays every [liveDelay] seconds
-    stateUpdate = stateUpdate + sampleInterval;
-    if stateUpdate >= liveDelay
-        livePanelValue.Text = sprintf('%5.3f',voltage);
-        pressurePanelValue.Text  = sprintf('%5.3f ± %5.3f',livePressure,liveStdDevP);
-        velocityPanelValue.Text  = sprintf('%5.3f ± %5.3f',liveNormVelocity,liveStdDevU);
-        stateUpdate = stateUpdate - liveDelay;
-    end
+    if stateRecord == 0 % if not recording, update the live moving averages
+        time1 = datetime;
+        time2 = time1 + timeDiff;
 
-    % if datetime < time2
-    %     disp(stateUpdate);
-    % end
+        % Collect data to be displayed live
+        voltage             = readVoltage(a,'A0');
+        liveHolder(1)       = [];
+        liveHolder(avgSize) = voltage;
+        % voltHolder = [voltHolder(2:end);voltage]; % this is an alternate way
+        % % to update the array that doesn't involve dynamic resizing, although
+        % % it seems to be slower than Raaghav's way
 
-    while datetime < time2
+        % Define pressure (time-averaged) in inches of water and height in mm
+        livePressureHolder  = liveHolder*m - digital1;
+        livePressure = mean(livePressureHolder); % units: inches of water
+        liveStdDevP = std(livePressureHolder); % units: inches of water
+
+        % Normalized velocity and distance
+        liveNormVelocity = sqrt(livePressure/maxPressure); % units: dimensionless (U/Uinf)
+        liveStdDevU = 0.5*liveStdDevP/sqrt(livePressure*maxPressure); % units: dimensionless (DeltaU/Uinf)
+
+        % update live displays every [liveDelay] seconds
+        stateUpdate = stateUpdate + sampleInterval;
+        if stateUpdate >= liveDelay
+            livePanelValue.Text = sprintf('%5.3f',voltage);
+            pressurePanelValue.Text  = sprintf('%5.3f ± %5.3f',livePressure,liveStdDevP);
+            velocityPanelValue.Text  = sprintf('%5.3f ± %5.3f',liveNormVelocity,liveStdDevU);
+            stateUpdate = stateUpdate - liveDelay;
+        end
+
+        % if datetime < time2
+        %     disp(stateUpdate);
+        % end
+
+        while datetime < time2
+        end
+    else % record data once the record button has been pushed, then send it back to live after done recording
+        % Move step forward
+        step = step + str2double(stepSelector.Value);
+
+        % clear the voltage array before collecting a sample
+        sampleHolder = zeros(sampleSize,1);
+
+        % collect the sample (fill the array of voltages to be averaged)
+        stateUpdate = 0;
+        for i=1:sampleSize
+            time3 = datetime;
+            time4 = time3 + timeDiff;
+
+            voltage = readVoltage(a,'A0');
+            sampleHolder(i) = voltage;
+
+            % update live voltage display every [liveDelay] seconds
+            stateUpdate = stateUpdate + sampleInterval;
+            if stateUpdate >= liveDelay
+                livePanelValue.Text = sprintf('%5.3f',voltage);
+                stateUpdate = stateUpdate - liveDelay;
+                % if datetime < time4
+                %     disp(i);
+                % end
+            end
+
+            while datetime < time4
+                % disp(milliseconds(datetime-time3));
+            end
+        end
+
+        % Append the voltstep data to the cumulative data
+        voltX     = [voltX, sampleHolder(1)]; % instantaneous voltage when the record button was first pushed
+        stepY     = [stepY, step]; % number of cranks
+        % Store average value
+        avgVoltX  = [avgVoltX, mean(sampleHolder)];
+
+        % Define pressure (time-averaged) in inches of water and height in mm
+        pressureHolder  = sampleHolder*m - digital1;
+        pressure = mean(pressureHolder); % units: inches of water
+        stdDevP = std(pressureHolder); % units: inches of water
+
+        height    = step * 3;
+
+        % Append the pressure height data to the cumulative data
+        pressureX = [pressureX, pressure];
+        heightY   = [heightY, height];
+        stdDevPX  = [stdDevPX, stdDevP];
+
+        % Normalized velocity and distance
+        maxPressure  = max(pressureX);
+        normVelocity = sqrt(pressure/maxPressure); % units: dimensionless (U/Uinf)
+        stdDevU = 0.5*stdDevP/sqrt(pressure*maxPressure); % units: dimensionless (DeltaU/Uinf)
+        normHeight   = height/diameter;
+
+        % Append the velocity distance data to the cumulative data
+        normVelocityX = sqrt(pressureX/maxPressure);
+        normHeightY   = [normHeightY, normHeight];
+
+        % change button color
+        if recordButtonColor(1) > 0.1
+            recordButtonColor = [(1-step/75) step/75 0];
+            recordButton.BackgroundColor = recordButtonColor;
+        end
+
+        % Update latest value
+        recordedPanelValue.Text = sprintf(['Pressure is %5.3f ± %5.3f' ...
+            '\n U/Uinf is %5.3f ± %5.3f'], pressure, stdDevP, normVelocity, stdDevU);
+
+        % Plot the cumulative data
+        plot(axisVoltStep, avgVoltX, stepY);
+        plot(axisPressureHeight, pressureX, heightY)
+        plot(axisVelocityHeight, normVelocityX, normHeightY)
+
+        figure
+        plot(pressureHolder)
+
+        stateRecord = 0; % done recording, so go back to updating live moving averages
+
+        % change the background color back to green to signal that data
+        % has been collected and it is now okay to move the probe
+        recordedPanelValue.BackgroundColor = green;
     end
 end
 
     function recordButtonPushed()
         if recordedPanelValue.BackgroundColor == green
-            
-            % change background color to red so that you don't move the
-            % probe while data collection is in progress
+            stateRecord = 1;
+
+            % change background color to red so that you don't move the probe while data collection is in progress
             recordedPanelValue.BackgroundColor = red;
-
-            % Move step forward
-            step      = step + str2double(stepSelector.Value);
-
-            % clear the voltage array before collecting a sample
-            sampleHolder = zeros(sampleSize,1);
-            
-            % collect the sample (fill the array of voltages to be averaged)
-            stateUpdate = 0;
-            for i=1:sampleSize
-                time3 = datetime;
-                time4 = time3 + timeDiff;
-                
-                voltage = readVoltage(a,'A1');
-                sampleHolder(i) = voltage;
-                
-                % update live voltage display every [liveDelay] seconds
-                stateUpdate = stateUpdate + sampleInterval;
-                if stateUpdate >= liveDelay
-                    livePanelValue.Text = sprintf('%5.3f',voltage);
-                    stateUpdate = stateUpdate - liveDelay;
-                    % if datetime < time4
-                    %     disp(i);
-                    % end
-                end
-
-                while datetime < time4
-                    % disp(milliseconds(datetime-time3));
-                end
-            end
-
-            % Append the voltstep data to the cumulative data
-            voltX     = [voltX, sampleHolder(1)]; % instantaneous voltage when the record button was first pushed
-            stepY     = [stepY, step]; % number of cranks
-            % Store average value
-            avgVoltX  = [avgVoltX, mean(sampleHolder)];
-
-            % Define pressure (time-averaged) in inches of water and height in mm
-            pressureHolder  = sampleHolder*m - digital1; 
-            pressure = mean(pressureHolder); % units: inches of water
-            stdDevP = std(pressureHolder); % units: inches of water
-            
-            height    = step * 3;
-
-            % Append the pressure height data to the cumulative data
-            pressureX = [pressureX, pressure]; 
-            heightY   = [heightY, height];
-            stdDevPX  = [stdDevPX, stdDevP]; 
-
-            % Normalized velocity and distance
-            maxPressure  = max(pressureX);
-            normVelocity = sqrt(pressure/maxPressure); % units: dimensionless (U/Uinf)
-            stdDevU = 0.5*stdDevP/sqrt(pressure*maxPressure); % units: dimensionless (DeltaU/Uinf)
-            normHeight   = height/diameter;
-
-            % Append the velocity distance data to the cumulative data
-            normVelocityX = sqrt(pressureX/maxPressure);
-            normHeightY   = [normHeightY, normHeight];
-
-            % change button color
-            if recordButtonColor(1) > 0.1
-                recordButtonColor = [(1-step/75) step/75 0];
-                recordButton.BackgroundColor = recordButtonColor;
-            end
-
-            % Update latest value
-            recordedPanelValue.Text = sprintf(['Pressure is %5.3f ± %5.3f' ...
-                '\n U/Uinf is %5.3f ± %5.3f'], pressure, stdDevP, normVelocity, stdDevU);
-
-            % Plot the cumulative data
-            plot(axisVoltStep, avgVoltX, stepY);
-            plot(axisPressureHeight, pressureX, heightY)
-            plot(axisVelocityHeight, normVelocityX, normHeightY)
-            
-            figure
-            plot(pressureHolder)
-            
-            % change the background color back to green to signal that data
-            % has been collected and it is now okay to move the probe
-            recordedPanelValue.BackgroundColor = green; 
         else
             recordButton.BackgroundColor = [0.9 0.9 0.2];
         end
@@ -385,7 +390,7 @@ end
 
     function sampleTimeChanged()
         sampleSize = sampleTime.Value/sampleInterval;
-        sampleHolder = zeros(sampleSize,1);
+        % sampleHolder = zeros(sampleSize,1); redundant
     end
 
 % Define the onKeyPress function
