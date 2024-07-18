@@ -26,26 +26,29 @@ close
 
 sampleTimeRange = 1:60;
 maxDiffs = zeros(length(sampleTimeRange),1);
+meanStDevs = maxDiffs;
 for j=1:length(sampleTimeRange)
     sampleTime = sampleTimeRange(j); 
     samplePoints = ceil(sampleTime/dt);
 
     voltMeans = zeros(length(time)-samplePoints,1);
+    stDevs = voltMeans;
     for i=1:length(voltMeans)
         voltMeans(i) = mean(voltage(i:i+samplePoints));
+        stDevs(i) = std(voltage(i:i+samplePoints));
     end
 
     diff = voltMeans-meanvolts;
     maxDiffs(j) = max(abs(diff));
+    meanStDevs(j) = mean(stDevs); 
 end
 
-% close
-figure
-plot(sampleTimeRange, maxDiffs)
+hold on
+plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs)
 xlabel('sample time (s)')
 ylabel('\Deltap (inches of water)')
 title('Maximum excursion of recorded mean dynamic pressure from true mean')
-subtitle('S/D=0.2, 5 mins of data')
+subtitle('S/D=0.2, 5 means of data')
 
 %% Wake Nadir Data
 
@@ -63,20 +66,23 @@ close
 
 sampleTimeRange = 1:60;
 maxDiffs = zeros(length(sampleTimeRange),1);
+meanStDevs = maxDiffs;
 for j=1:length(sampleTimeRange)
     sampleTime = sampleTimeRange(j); 
     samplePoints = ceil(sampleTime/dt);
 
     voltMeans = zeros(length(time)-samplePoints,1);
+    stDevs = voltMeans;
     for i=1:length(voltMeans)
         voltMeans(i) = mean(voltage(i:i+samplePoints));
+        stDevs(i) = std(voltage(i:i+samplePoints));
     end
 
     diff = voltMeans-meanvolts;
     maxDiffs(j) = max(abs(diff));
+    meanStDevs(j) = mean(stDevs); 
 end
 
-% close 
 hold on
-plot(sampleTimeRange, maxDiffs)
-legend('Free Stream', 'Wake Nadir')
+plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs)
+legend('Free Stream', 'Free Stream, mean std dev of X-second sample', 'Wake Nadir', 'Wake Nadir, mean std dev of X-second sample')
