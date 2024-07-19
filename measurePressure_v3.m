@@ -334,21 +334,20 @@ while stateLive == 1
 
         % Append the sample vector to the array containing all samples
         sampleHolder = sampleHolder';
-        switch sampleHolder
-            case isempty(sampleHolder)
-                sampleHolderX = sampleHolder;
-            case length(sampleHolder) < length(sampleHolderX)
-                lengthdiff = length(sampleHolderX) - length(sampleHolder);
-                sampleHolder = [sampleHolder, zeros(1,lengthdiff)];
-                sampleHolderX = [sampleHolderX; sampleHolder];
-            case length(sampleHolder) > length(sampleHolderX)
-                lengthdiff = length(sampleHolder) - length(sampleHolderX);
-                sampleHolderX = [sampleHolderX, zeros(height(sampleHolderX),lengthdiff)];
-                sampleHolderX = [sampleHolderX; sampleHolder];
-            case length(sampleHolder) == length(sampleHolderX)
-                sampleHolderX = [sampleHolderX; sampleHolder];
-            otherwise
-                warning('Exception')
+        if length(sampleHolder) == width(sampleHolderX)
+            sampleHolderX = [sampleHolderX; sampleHolder];
+        elseif isempty(sampleHolder)
+            sampleHolderX = sampleHolder;
+        elseif length(sampleHolder) < width(sampleHolderX)
+            lengthdiff = width(sampleHolderX) - length(sampleHolder);
+            sampleHolder = [sampleHolder, zeros(1,lengthdiff)];
+            sampleHolderX = [sampleHolderX; sampleHolder];
+        elseif length(sampleHolder) > width(sampleHolderX)
+            lengthdiff = length(sampleHolder) - width(sampleHolderX);
+            sampleHolderX = [sampleHolderX, zeros(height(sampleHolderX),lengthdiff)];
+            sampleHolderX = [sampleHolderX; sampleHolder];
+        else
+            warning('Sample Size Exception')
         end
 
         % change button color
