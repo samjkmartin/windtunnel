@@ -18,15 +18,15 @@ sampleInterval = 0.05; % live value is updated every [] seconds
 liveDelay = 0.2;  % display live value every [] seconds
 defaultSampleTime = 10;    % Default number of seconds over which data is recorded
 sampleSize = defaultSampleTime/sampleInterval;   % default [] slots of values in sample
-avgTime = 3; % Number of seconds over which rolling average pressure and velocity are calculated
-avgSize = avgTime/sampleInterval; 
+liveTime = 3; % Number of seconds over which moving average pressure and velocity are calculated
+liveSize = liveTime/sampleInterval; 
 maxPressure = 4.5; % initial value so that live velocity will display before the first data is recorded
 
 % Define Variables for memory
 voltage    = 0;                % current value read by arduino
 step       = -2;                % Counts cranks
-sampleHolder = zeros(sampleSize,1); % Holds voltage values during data recording
-liveHolder = zeros(avgSize,1); % Holds voltage values during main (live update) loop
+sampleHolder = zeros(sampleSize,1); % Stores voltage values during data recording
+liveHolder = zeros(liveSize,1); % Stores voltage values during main (live update) loop
 white      = [1 1 1];          % RGB value for white
 
 % define indicator colors for data collection
@@ -143,7 +143,7 @@ livePanelValue.Position(3:4) = [80 44];
 
 % Panel to display time-averaged pressure value
 pressurePanel = uipanel(grid, ...
-    "Title",['Pressure (in water) (' num2str(avgTime) '-sec moving avg)'], ...
+    "Title",['Pressure (in water) (' num2str(liveTime) '-sec moving avg)'], ...
     "BackgroundColor",[148 191 190]/255);
 pressurePanel.Layout.Row    = 1;
 pressurePanel.Layout.Column = 2;
@@ -155,7 +155,7 @@ pressurePanelValue.Position(3:4) = [80 44];
 
 % Panel to display time-averaged normalized velocity value
 velocityPanel = uipanel(grid, ...
-    "Title",['U/Uinf (' num2str(avgTime) '-sec moving avg)'], ...
+    "Title",['U/Uinf (' num2str(liveTime) '-sec moving avg)'], ...
     "BackgroundColor",[148 191 190]/255);
 velocityPanel.Layout.Row    = 1;
 velocityPanel.Layout.Column = 3;
@@ -207,11 +207,14 @@ avgVoltX      = [];
 % Initialize pressure - height plot data
 pressureX     = [];
 heightY       = [];
-stdDevPX      = [];
 
 % Initialize velocity - distance plot data
 normVelocityX = [];
 normHeightY   = [];
+
+% Initialize other data to be eventually saved to CSV
+stdDevPX      = [];
+sampleHolderX = [];
 
 % Arduino Attach – first string varies based on laptop and USB port used.
 % To find port info: Plug in Arduino -> Arduino App -> Tools -> Port
@@ -241,7 +244,7 @@ while stateLive == 1
         % Collect data to be displayed live
         voltage             = readVoltage(a,'A0');
         liveHolder(1)       = [];
-        liveHolder(avgSize) = voltage;
+        liveHolder(liveSize) = voltage;
         % voltHolder = [voltHolder(2:end);voltage]; % this is an alternate way
         % % to update the array that doesn't involve dynamic resizing, although
         % % it seems to be slower than Raaghav's way
@@ -302,10 +305,10 @@ while stateLive == 1
         end
 
         % Append the voltstep data to the cumulative data
-        voltX     = [voltX, sampleHolder(1)]; % instantaneous voltage when the record button was first pushed
-        stepY     = [stepY, step]; % number of cranks
+        voltX     = [voltX; sampleHolder(1)]; % instantaneous voltage when the record button was first pushed
+        stepY     = [stepY; step]; % number of cranks
         % Store average value
-        avgVoltX  = [avgVoltX, mean(sampleHolder)];
+        avgVoltX  = [avgVoltX; mean(sampleHolder)];
 
         % Define pressure (time-averaged) in inches of water and height in mm
         pressureHolder  = sampleHolder*m - digital1;
@@ -315,9 +318,9 @@ while stateLive == 1
         height    = step * 3;
 
         % Append the pressure height data to the cumulative data
-        pressureX = [pressureX, pressure];
-        heightY   = [heightY, height];
-        stdDevPX  = [stdDevPX, stdDevP];
+        pressureX = [pressureX; pressure];
+        heightY   = [heightY; height];
+        stdDevPX  = [stdDevPX; stdDevP];
 
         % Normalized velocity and distance
         maxPressure  = max(pressureX);
@@ -327,7 +330,26 @@ while stateLive == 1
 
         % Append the velocity distance data to the cumulative data
         normVelocityX = sqrt(pressureX/maxPressure);
-        normHeightY   = [normHeightY, normHeight];
+        normHeightY   = [normHeightY; normHeight];
+
+        % Append the sample vector to the array containing all samples
+        sampleHolder = sampleHolder';
+        switch sampleHolder
+            case isempty(sampleHolder)
+                sampleHolderX = sampleHolder;
+            case length(sampleHolder) < length(sampleHolderX)
+                lengthdiff = length(sampleHolderX) - length(sampleHolder);
+                sampleHolder = [sampleHolder, zeros(1,lengthdiff)];
+                sampleHolderX = [sampleHolderX; sampleHolder];
+            case length(sampleHolder) > length(sampleHolderX)
+                lengthdiff = length(sampleHolder) - length(sampleHolderX);
+                sampleHolderX = [sampleHolderX, zeros(height(sampleHolderX),lengthdiff)];
+                sampleHolderX = [sampleHolderX; sampleHolder];
+            case length(sampleHolder) == length(sampleHolderX)
+                sampleHolderX = [sampleHolderX; sampleHolder];
+            otherwise
+                warning('Exception')
+        end
 
         % change button color
         if recordButtonColor(1) > 0.1
@@ -367,11 +389,11 @@ end
     end
 
     function saveButtonPushed()
-        data = [voltX(:), stepY(:), avgVoltX(:), pressureX(:), stdDevPX(:)];
+        data = [voltX(:), stepY(:), avgVoltX(:), pressureX(:), stdDevPX(:), sampleHolderX];
 
         fileName1  = discType.Value;
         fileName2  = stationType.Value;
-        formatSpec = '%s%s.csv';
+        formatSpec = '%sS%s.csv';
 
         locationName = sprintf(formatSpec,fileName1,fileName2);
 
