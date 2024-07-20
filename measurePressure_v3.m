@@ -336,15 +336,15 @@ while stateLive == 1
         sampleHolder = sampleHolder';
         if length(sampleHolder) == width(sampleHolderX)
             sampleHolderX = [sampleHolderX; sampleHolder];
-        elseif isempty(sampleHolder)
+        elseif isempty(sampleHolderX)
             sampleHolderX = sampleHolder;
         elseif length(sampleHolder) < width(sampleHolderX)
             lengthdiff = width(sampleHolderX) - length(sampleHolder);
             sampleHolder = [sampleHolder, zeros(1,lengthdiff)];
             sampleHolderX = [sampleHolderX; sampleHolder];
         elseif length(sampleHolder) > width(sampleHolderX)
-            lengthdiff = length(sampleHolder) - width(sampleHolderX);
-            sampleHolderX = [sampleHolderX, zeros(height(sampleHolderX),lengthdiff)];
+            lengthdiff = length(sampleHolder) - size(sampleHolderX,2);
+            sampleHolderX = [sampleHolderX, zeros(size(sampleHolderX,1),lengthdiff)];
             sampleHolderX = [sampleHolderX; sampleHolder];
         else
             warning('Sample Size Exception')
@@ -366,7 +366,7 @@ while stateLive == 1
         plot(axisVelocityHeight, normVelocityX, normHeightY)
 
         figure
-        plot(pressureHolder)
+        plot(sampleInterval*(1:length(pressureHolder)), pressureHolder)
 
         stateRecord = 0; % done recording, so go back to updating live moving averages
 
