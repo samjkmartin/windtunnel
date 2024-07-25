@@ -9,7 +9,7 @@ deviation of that mean value from the true mean. I.e. it allows us to
 quantify the accuracy of the mean pressure we record based on the amount
 of time we average over in order to get that mean. 
 %}
-
+%{
 %% Free Stream Data
 
 figFreeStream = openfig('pin_A0_FreeStream_300s.fig', 'invisible');
@@ -45,10 +45,7 @@ end
 
 hold on
 plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs)
-xlabel('sample time (s)')
-ylabel('\Deltap (inches of water)')
-title('Maximum excursion of recorded mean dynamic pressure from true mean')
-subtitle('S/D=0.2, 5 mins of data')
+%}
 
 %% Wake Nadir Data
 
@@ -84,9 +81,10 @@ for j=1:length(sampleTimeRange)
 end
 
 hold on
-plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs)
+plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs) % plot Delta p (inches of water)
+% plot(sampleTimeRange, maxDiffs/meanvolts, sampleTimeRange, meanStDevs/meanvolts) % plot Delta p/p (normalized)
 
-%{
+
 %% Wake Outer Region Data
 
 figWakeOuter = openfig('pin_A0_WakeOuter_300s.fig','invisible');
@@ -121,6 +119,12 @@ for j=1:length(sampleTimeRange)
 end
 
 hold on
-plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs)
-legend('Free Stream', 'Free Stream, mean std dev of X-second sample', 'Wake Nadir', 'Wake Nadir, mean std dev of X-second sample', 'Wake Outer Region', 'Wake Outer Region, mean std dev of X-second sample')
-%}
+plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs) % plot Delta p (inches of water)
+ylabel('\Deltap (inches of water)')
+% plot(sampleTimeRange, maxDiffs/meanvolts, sampleTimeRange, meanStDevs/meanvolts)
+% ylabel('\Deltap/p')
+xlabel('sample time (s)')
+title('Maximum excursion of recorded mean dynamic pressure from true mean')
+subtitle('S/D=0.2, 5 mins of data')
+legend('Wake Nadir', 'Wake Nadir, mean std dev of X-second sample', 'Wake Outer Region', 'Wake Outer Region, mean std dev of X-second sample')
+% legend('Free Stream', 'Free Stream, mean std dev of X-second sample', 'Wake Nadir', 'Wake Nadir, mean std dev of X-second sample', 'Wake Outer Region', 'Wake Outer Region, mean std dev of X-second sample')
