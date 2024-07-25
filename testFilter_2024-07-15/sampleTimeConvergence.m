@@ -48,7 +48,7 @@ plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs)
 xlabel('sample time (s)')
 ylabel('\Deltap (inches of water)')
 title('Maximum excursion of recorded mean dynamic pressure from true mean')
-subtitle('S/D=0.2, 5 means of data')
+subtitle('S/D=0.2, 5 mins of data')
 
 %% Wake Nadir Data
 
