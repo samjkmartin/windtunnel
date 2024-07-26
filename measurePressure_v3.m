@@ -365,8 +365,8 @@ while stateLive == 1
         plot(axisPressureHeight, pressureX, heightY)
         plot(axisVelocityHeight, normVelocityX, normHeightY)
 
-        figure
-        plot(sampleInterval*(1:length(pressureHolder)), pressureHolder)
+        % figure
+        % plot(sampleInterval*(1:length(pressureHolder)), pressureHolder)
 
         stateRecord = 0; % done recording, so go back to updating live moving averages
 
