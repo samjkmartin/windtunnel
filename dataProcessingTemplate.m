@@ -11,9 +11,9 @@ else
 end
 
 %% Information about the disc (set manually)
-discName = 'A7';
+discName = 'AL20v1';
 D = 50; % diameter in mm
-S = 20; % span in mm
+S = 10; % span in mm
 R = D/2; % Disc radius
 
 %% Importing the raw data and saving to MATLAB variables
