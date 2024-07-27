@@ -19,11 +19,11 @@ R = D/2; % Disc radius
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [2,4];
+stations = [2:4];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [33.75,33.5]; %,33.5,33.5,33.5,33,33.5,33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = [33.75,33.5,33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
@@ -45,7 +45,7 @@ for j=1:numStations
     rNorm{j} = r/D;
     
     pInfty(j) = max(pressure{j}(1:5)); 
-    uNorm{j} = sqrt(pressure{j}/pInfty); 
+    uNorm{j} = sqrt(pressure{j}/pInfty(j)); 
     stdDevU{j} = 0.5*stdDevP{j}./sqrt(pressure{j}*pInfty(j));
 end
 
