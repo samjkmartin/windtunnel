@@ -45,7 +45,7 @@ for j=1:numStations
     rNorm{j} = r/D;
     
     pInfty(j) = max(pressure{j}(1:5)); 
-    uNorm{j} = sqrt(pressure{j}/pInfty); 
+    uNorm{j} = sqrt(pressure{j}/pInfty(j)); 
     stdDevU{j} = 0.5*stdDevP{j}./sqrt(pressure{j}*pInfty(j));
 end
 
