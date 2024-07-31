@@ -47,26 +47,26 @@ grid.RowHeight   = {'1x','2x','2x','2x','2x','1x'};
 grid.ColumnWidth = {'1x','1x','1x','1x','1x','1x'};
 
 % Plots to visualize data as its collected
-% Voltage versus steps
-axisVoltStep = uiaxes(grid);
-axisVoltStep.Layout.Row    = [2 5];
-axisVoltStep.Layout.Column = [1 2];
-axisVoltStep.Title.String  = 'Voltage Versus Steps';
-axisVoltStep.XLabel.String = 'Voltage (V)';
-axisVoltStep.YLabel.String = 'Steps (cranks)';
+% Voltage versus time for most recent sample
+axisVoltTime = uiaxes(grid);
+axisVoltTime.Layout.Row    = [2 5];
+axisVoltTime.Layout.Column = [1 2];
+axisVoltTime.Title.String  = 'Voltage vs. Time for most recent sample';
+axisVoltTime.XLabel.String = 'Time (sec)';
+axisVoltTime.YLabel.String = 'Voltage (V)';
 
-axisVoltStep.Title.Color   = white;
-axisVoltStep.XLabel.Color  = white;
-axisVoltStep.YLabel.Color  = white;
-axisVoltStep.XColor        = white;
-axisVoltStep.YColor        = white;
+axisVoltTime.Title.Color   = white;
+axisVoltTime.XLabel.Color  = white;
+axisVoltTime.YLabel.Color  = white;
+axisVoltTime.XColor        = white;
+axisVoltTime.YColor        = white;
 
-% Pressure versus height
+% Pressure versus cranks
 axisPressureHeight = uiaxes(grid);
 axisPressureHeight.Layout.Row    = [2 5];
 axisPressureHeight.Layout.Column = [3 4];
-axisPressureHeight.Title.String  = 'Pressure Versus Height';
-axisPressureHeight.YLabel.String = 'Height (mm)';
+axisPressureHeight.Title.String  = 'Pressure Versus Cranks';
+axisPressureHeight.YLabel.String = 'Cranks (mm)';
 axisPressureHeight.XLabel.String = 'Pressure (in H_2O)';
 
 axisPressureHeight.Title.Color   = white;
@@ -75,7 +75,7 @@ axisPressureHeight.YLabel.Color  = white;
 axisPressureHeight.XColor        = white;
 axisPressureHeight.YColor        = white;
 
-% Velocity versus height
+% Velocity versus normalized height
 axisVelocityHeight = uiaxes(grid);
 axisVelocityHeight.Layout.Row    = [2 5];
 axisVelocityHeight.Layout.Column = [5 6];
@@ -206,7 +206,7 @@ avgVoltX      = [];
 
 % Initialize pressure - height plot data
 pressureX     = [];
-heightY       = [];
+% heightY       = []; 
 
 % Initialize velocity - distance plot data
 normVelocityX = [];
@@ -222,6 +222,7 @@ sampleHolderX = [];
 % Sam 2015 left port: "/dev/cu.usbmodem14101"
 % Sam 2015 right port "/dev/cu.usbmodem14201"
 % Sam 2021 left upper port "/dev/cu.usbmodem101"
+% Riley 2024 USB Port "/COM5"
 a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
 
 % Configure Pin
@@ -306,7 +307,7 @@ while stateLive == 1
         end
         toc
 
-        % Append the voltstep data to the cumulative data
+        % Append the voltage and step data to the cumulative data
         voltX     = [voltX; sampleHolder(1)]; % instantaneous voltage when the record button was first pushed
         stepY     = [stepY; step]; % number of cranks
         % Store average value
@@ -319,9 +320,9 @@ while stateLive == 1
 
         height    = step * 3;
 
-        % Append the pressure height data to the cumulative data
+        % Append the pressure data to the cumulative data
         pressureX = [pressureX; pressure];
-        heightY   = [heightY; height];
+        % heightY   = [heightY; height];
         stdDevPX  = [stdDevPX; stdDevP];
 
         % Normalized velocity and distance
@@ -363,8 +364,8 @@ while stateLive == 1
             '\n U/Uinf is %5.3f ± %5.3f'], pressure, stdDevP, normVelocity, stdDevU);
 
         % Plot the cumulative data
-        plot(axisVoltStep, avgVoltX, stepY);
-        plot(axisPressureHeight, pressureX, heightY)
+        plot(axisVoltTime, sampleInterval*(1:(sampleTime/sampleInterval)), sampleHolder);
+        plot(axisPressureHeight, pressureX, stepY)
         plot(axisVelocityHeight, normVelocityX, normHeightY)
 
         % figure
@@ -423,7 +424,9 @@ end
         % Check if the pressed key corresponds to 'a', 's', 'd', or 'space'
         if strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd') || strcmp(keyPressed, 'space')
             % Change the value in the dropdown based on the key
-            if strcmp(keyPressed, 'a')
+            if strcmp(keyPressed, 'space')
+                recordButtonPushed()
+            elseif strcmp(keyPressed, 'a')
                 stepSelector.Value = '2';
                 disp(stepSelector.Value)
             elseif strcmp(keyPressed, 's')
@@ -432,8 +435,6 @@ end
             elseif strcmp(keyPressed, 'd')
                 stepSelector.Value = '0.5';
                 disp(stepSelector.Value)
-            elseif strcmp(keyPressed, 'space')
-                recordButtonPushed()
             end
         end
     end
