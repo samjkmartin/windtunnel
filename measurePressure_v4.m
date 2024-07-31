@@ -283,7 +283,6 @@ while stateLive == 1
 
         % collect the sample (fill the array of voltages to be averaged)
         stateUpdate = 0;
-        tic
         for i=1:sampleSize
             time3 = datetime;
             time4 = time3 + timeDiff;
@@ -305,7 +304,6 @@ while stateLive == 1
                 % disp(milliseconds(datetime-time3));
             end
         end
-        toc
 
         % Append the voltage and step data to the cumulative data
         voltX     = [voltX; sampleHolder(1)]; % instantaneous voltage when the record button was first pushed
@@ -364,7 +362,7 @@ while stateLive == 1
             '\n U/Uinf is %5.3f ± %5.3f'], pressure, stdDevP, normVelocity, stdDevU);
 
         % Plot the cumulative data
-        plot(axisVoltTime, sampleInterval*(1:(sampleTime/sampleInterval)), sampleHolder);
+        plot(axisVoltTime, (1:sampleSize)*sampleInterval, sampleHolder);
         plot(axisPressureHeight, pressureX, stepY)
         plot(axisVelocityHeight, normVelocityX, normHeightY)
 
