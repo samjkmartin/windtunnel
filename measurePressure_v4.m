@@ -1,4 +1,4 @@
-function measurePressure_v3
+function measurePressure_v4
 
 % Calibration points:
 pressure1   = 0;
@@ -33,6 +33,8 @@ white      = [1 1 1];          % RGB value for white
 green = [0.25 .8 .4]; 
 red = [0.85 .25 .4];
 
+%% Create UI
+
 % Create uifigure
 appWindow = uifigure('WindowState','maximized', ...
     'Name','App for Pressure Transducer by Raaghav and Sam');
@@ -47,6 +49,7 @@ grid.RowHeight   = {'1x','2x','2x','2x','2x','1x'};
 grid.ColumnWidth = {'1x','1x','1x','1x','1x','1x'};
 
 % Plots to visualize data as its collected
+
 % Voltage versus time for most recent sample
 axisVoltTime = uiaxes(grid);
 axisVoltTime.Layout.Row    = [2 5];
@@ -216,14 +219,16 @@ normHeightY   = [];
 stdDevPX      = [];
 sampleHolderX = [];
 
+%% Arduino
+
 % Arduino Attach – first string varies based on laptop and USB port used.
 % To find port info: Plug in Arduino -> Arduino App -> Tools -> Port
 % Raaghav right port: "/dev/cu.usbmodem2101"
 % Sam 2015 left port: "/dev/cu.usbmodem14101"
 % Sam 2015 right port "/dev/cu.usbmodem14201"
 % Sam 2021 left upper port "/dev/cu.usbmodem101"
-% Riley 2024 USB Port "/COM5"
-a = arduino("COM5", "Uno", Libraries = "I2C");
+% Riley 2024 USB Port "/OM5"
+a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
 
 % Configure Pin
 configurePin(a,'A0','AnalogInput');
@@ -341,8 +346,8 @@ while stateLive == 1
             sampleHolderX = sampleHolder;
         elseif length(sampleHolder) < width(sampleHolderX)
             lengthdiff = width(sampleHolderX) - length(sampleHolder);
-            sampleHolder = [sampleHolder, zeros(1,lengthdiff)];
-            sampleHolderX = [sampleHolderX; sampleHolder];
+            % sampleHolder = [sampleHolder, zeros(1,lengthdiff)];
+            sampleHolderX = [sampleHolderX; [sampleHolder, zeros(1,lengthdiff)]];
         elseif length(sampleHolder) > width(sampleHolderX)
             lengthdiff = length(sampleHolder) - size(sampleHolderX,2);
             sampleHolderX = [sampleHolderX, zeros(size(sampleHolderX,1),lengthdiff)];
@@ -412,18 +417,38 @@ end
 
     function sampleTimeChanged()
         sampleSize = sampleTime.Value/sampleInterval;
-        % sampleHolder = zeros(sampleSize,1); redundant
+        sampleHolder = zeros(sampleSize,1); 
     end
 
 % Define the onKeyPress function
     function onKeyPress(~,event)
         keyPressed = event.Key;
 
-        % Check if the pressed key corresponds to 'a', 's', 'd', or 'space'
-        if strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd') || strcmp(keyPressed, 'space')
+        % Check if the pressed key corresponds to 'space', 'z', 'a', 's', or 'd'
+        if strcmp(keyPressed, 'space') || strcmp(keyPressed, 'z') || strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd')
             % Change the value in the dropdown based on the key
             if strcmp(keyPressed, 'space')
                 recordButtonPushed()
+            elseif strcmp(keyPressed, 'z')
+                % Erase most recent data point 
+                voltX = voltX(1:end-1);
+                stepY = stepY(1:end-1); 
+                step = stepY(end);
+                avgVoltX = avgVoltX(1:end-1); 
+                pressureX = pressureX(1:end-1);
+                % heightY = heightY(1:end-1); 
+                stdDevPX = stdDevPX(1:end-1); 
+                normVelocityX = normVelocityX(1:end-1); 
+                normHeightY = normHeightY(1:end-1); 
+                sampleHolderX = sampleHolderX(1:end-1,:);
+                sampleHolder = sampleHolderX(end,:);
+                
+                % Display and plot the data without the erased point
+                recordedPanelValue.Text = sprintf(['Pressure is %5.3f ± %5.3f' ...
+                    '\n U/Uinf is %5.3f ± %5.3f'], pressureX(end), stdDevPX(end), normVelocityX(end), 0.5*stdDevPX(end)/sqrt(pressureX(end)*max(pressureX)));
+                plot(axisVoltTime, (1:length(sampleHolder))*sampleInterval, sampleHolderX(end,:));
+                plot(axisPressureHeight, pressureX, stepY)
+                plot(axisVelocityHeight, normVelocityX, normHeightY)
             elseif strcmp(keyPressed, 'a')
                 stepSelector.Value = '2';
                 disp(stepSelector.Value)
