@@ -53,7 +53,7 @@ end
 
 % Plot formatting (set manually)
 uAxis = [0.5 1]; % U axis values for all velocity profile plots
-rAxis = [-1.5 1.5]; % r axis values for all velocity profile plots
+rAxis = [-1.25 1.25]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
@@ -74,7 +74,7 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 close
 
 CT = mean(CD(1:6));
-EE = 0.2; 
+EE = 0.21; 
 xe = 0; 
 xmax = 10;
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
