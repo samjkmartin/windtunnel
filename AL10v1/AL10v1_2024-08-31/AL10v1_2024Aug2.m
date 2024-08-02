@@ -19,11 +19,11 @@ R = D/2; % Disc radius
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [4];
+stations = [1,4];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = [34.25,33.5]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
@@ -73,8 +73,8 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close
 
-CT = mean(CD);
-EE = 0.2; 
+CT = 0.99; %mean(CD);
+EE = 0.29; 
 xe = 0; 
 xmax = 10;
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
