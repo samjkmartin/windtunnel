@@ -424,41 +424,48 @@ end
     function onKeyPress(~,event)
         keyPressed = event.Key;
 
-        % Check if the pressed key corresponds to 'space', 'z', 'a', 's', or 'd'
-        if strcmp(keyPressed, 'space') || strcmp(keyPressed, 'z') || strcmp(keyPressed, 'a') || strcmp(keyPressed, 's') || strcmp(keyPressed, 'd')
-            % Change the value in the dropdown based on the key
-            if strcmp(keyPressed, 'space')
+        % Check if the pressed key corresponds to 'space', 'a', 's', 'd', or 'z'
+        switch keyPressed
+            case 'space'
                 recordButtonPushed()
-            elseif strcmp(keyPressed, 'z')
-                % Erase most recent data point 
-                voltX = voltX(1:end-1);
-                stepY = stepY(1:end-1); 
-                step = stepY(end);
-                avgVoltX = avgVoltX(1:end-1); 
-                pressureX = pressureX(1:end-1);
-                % heightY = heightY(1:end-1); 
-                stdDevPX = stdDevPX(1:end-1); 
-                normVelocityX = normVelocityX(1:end-1); 
-                normHeightY = normHeightY(1:end-1); 
-                sampleHolderX = sampleHolderX(1:end-1,:);
-                sampleHolder = sampleHolderX(end,:);
-                
-                % Display and plot the data without the erased point
-                recordedPanelValue.Text = sprintf(['Pressure is %5.3f ± %5.3f' ...
-                    '\n U/Uinf is %5.3f ± %5.3f'], pressureX(end), stdDevPX(end), normVelocityX(end), 0.5*stdDevPX(end)/sqrt(pressureX(end)*max(pressureX)));
-                plot(axisVoltTime, (1:length(sampleHolder))*sampleInterval, sampleHolderX(end,:));
-                plot(axisPressureHeight, pressureX, stepY)
-                plot(axisVelocityHeight, normVelocityX, normHeightY)
-            elseif strcmp(keyPressed, 'a')
+            case 'a'
                 stepSelector.Value = '2';
                 disp(stepSelector.Value)
-            elseif strcmp(keyPressed, 's')
+            case 's'
                 stepSelector.Value = '1';
                 disp(stepSelector.Value)
-            elseif strcmp(keyPressed, 'd')
+            case 'd'
                 stepSelector.Value = '0.5';
                 disp(stepSelector.Value)
-            end
+            case 'z'
+                % Dialog box to confirm that the user wants to undo the last measurement
+                answer = questdlg('Are you sure you want to erase the most recent data point?', ...
+                	'Confirm Undo', 'Confirm','Cancel','Cancel');
+                % Do nothing if Cancel, undo if Confirm
+                switch answer
+                    case 'Cancel'
+                        % Do nothing
+                    case 'Confirm'
+                        % Erase most recent data point
+                        voltX = voltX(1:end-1);
+                        stepY = stepY(1:end-1);
+                        step = stepY(end);
+                        avgVoltX = avgVoltX(1:end-1);
+                        pressureX = pressureX(1:end-1);
+                        % heightY = heightY(1:end-1);
+                        stdDevPX = stdDevPX(1:end-1);
+                        normVelocityX = normVelocityX(1:end-1);
+                        normHeightY = normHeightY(1:end-1);
+                        sampleHolderX = sampleHolderX(1:end-1,:);
+                        sampleHolder = sampleHolderX(end,:);
+
+                        % Display and plot the data without the erased point
+                        recordedPanelValue.Text = sprintf(['Pressure is %5.3f ± %5.3f' ...
+                            '\n U/Uinf is %5.3f ± %5.3f'], pressureX(end), stdDevPX(end), normVelocityX(end), 0.5*stdDevPX(end)/sqrt(pressureX(end)*max(pressureX)));
+                        plot(axisVoltTime, (1:length(sampleHolder))*sampleInterval, sampleHolderX(end,:));
+                        plot(axisPressureHeight, pressureX, stepY)
+                        plot(axisVelocityHeight, normVelocityX, normHeightY)
+                end
         end
     end
 end
