@@ -39,7 +39,7 @@ end
 % a - 1/2 = -sqrt((1-CT)/4)
 S = S/D; % normalizing by D
 D = 1; 
-if 0 <= CT <= 0.96
+if CT <= 0.96
     a = 1/2 - sqrt((1-CT)/4); % calculate axial induction factor from CT
 else
     a = (20 + 3*sqrt(CT*50))/50; % Glauert correction for a>0.4
