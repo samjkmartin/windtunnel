@@ -42,7 +42,7 @@ D = 1;
 if CT <= 0.96
     a = 1/2 - sqrt((1-CT)/4); % calculate axial induction factor from CT
 else
-    a = (20 + 3*sqrt(CT*50))/50; % Glauert correction for a>0.4
+    a = 1/7 + (3/14)*sqrt(14*CT-12); % Buhl's (2004) Glauert correction for a>0.4
 end
 Vinf = 1; % this code defaults to calculating normalized velocity, i.e. the free-stream velocity Vinf = 1
 
