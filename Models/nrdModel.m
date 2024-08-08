@@ -22,18 +22,22 @@ function [xD,Vw,Dw,Sw] = nrdModel(D,S,CT,EE,xe,xmax)
 
 %%
 
-if ((D<=0)||(S<=0)||(CT<=0)||(EE<=0)||(xmax<=0)||(S>D/2)||(CT>1)||(EE>1))
+if ((D<=0)||(S<=0)||(CT<=0)||(EE<=0)||(xmax<=0)||(S>D/2)||(CT>2)||(EE>1))
     disp('Error: check that your inputs are correct.'); 
     disp('D, S, CT, EE, and xmax must all be positive, real values.');
     disp('S must be less than or equal to D/2.');
-    disp('CT must be less than or equal to 1.')
+    disp('CT must be less than or equal to 2.')
     disp('EE must be less than or equal to 1.')
     return
 end
 
 S = S/D; % normalizing by D
 D = 1; 
-a = 1/2 - sqrt((1-CT)/4); % calculate axial induction factor from CT
+if CT <= 0.96
+    a = 1/2 - sqrt((1-CT)/4); % calculate axial induction factor from CT
+else
+    a = 1/7 + (3/14)*sqrt(14*CT-12); % Buhl's (2004) Glauert correction for a>0.4
+end
 Vinf = 1; % this code defaults to calculating normalized velocity, i.e. the free-stream velocity Vinf = 1
 x = 0:0.1:xmax; 
 
