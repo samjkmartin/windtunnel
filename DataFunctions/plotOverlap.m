@@ -26,6 +26,6 @@ legend(legends,'location','northwest')
 
 fontsize(sizeFont,'points')
 title(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)),'FontSize',sizeTitle)
-figOverlap.Position = [100 200 520*[2.63 1.5]*0.95]; 
+figOverlap.Position = [75 75 520*[2.63 1.5]*0.85]; 
 
 end

@@ -26,6 +26,6 @@ for j=1:numStations
 end
 fontsize(sizeFont,'points')
 sgtitle(strcat('Normalized Velocity Profiles for S/D=', num2str(S/D)),'fontsize',sizeTitle)
-figProfiles.Position = [100 200 520*[2.63 1]*0.95]; 
+figProfiles.Position = [75 200 520*[2.63 1]*0.95]; 
 
 end

@@ -12,7 +12,7 @@ ylabel('V_w/V_{\infty}')
 legend('Wind tunnel data',strcat('Full Model (E=',num2str(EE),', x_e=',num2str(xe),')'),'location','southeast','fontsize',14)
 fontsize(sizeFont,'points')
 title(strcat('Mean Wake Velocity'));% for S/D='),num2str(S/D)))
-figVw.Position = [100 200 520*[2.63 1.5]*0.95]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
+figVw.Position = [75 75 520*[2.63 1.5]*0.85]; % powerpoint slide main textbox size is 11.5" by 5.2". For some reason, between MATLAB saving the file and importing it to PPT, some width is lost
 
 
 % % testing out a range of entrainment coefficients

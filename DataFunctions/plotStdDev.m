@@ -22,6 +22,6 @@ for j=1:numStations
 end
 fontsize(sizeFont,'points')
 sgtitle(strcat('Std. Dev. of Dynamic Pressure and Normalized Velocity for S/D=', num2str(S/D)),'fontsize',sizeTitle)
-figStdDev.Position = [100 200 520*[2.63 1]*0.95]; 
+figStdDev.Position = [75 200 520*[2.63 1]*0.95]; 
 
 end
