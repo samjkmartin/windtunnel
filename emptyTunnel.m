@@ -11,6 +11,7 @@ data = readmatrix("emptytunnelstation2.csv");
 cranks = data(1:38,2); % number of cranks up from starting probe position
 cranks = cranks - 2; % because we started at 0 but the program recorded it as 2 because of a bug
 pressure = data(1:38,4); % dynamic pressure in inches of water
+figure
 plot(pressure, cranks);
 title('Pressure vs Cranks')
 xlabel('Pressure (in. H_2O)')
