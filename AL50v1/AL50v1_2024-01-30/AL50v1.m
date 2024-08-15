@@ -2,7 +2,7 @@ clc;
 clear all;
 close all;
 
-if contains(path,'sam')
+if contains(path,'samjkmartin')
     addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/DataFunctions','-end')
     addpath('/Users/samjkmartin/Documents/MATLAB/windtunnel/Models','-end')
 else
