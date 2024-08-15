@@ -77,8 +77,8 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 close
 
 CT = mean(CD(3:7));
-EE = 0.27; 
-xe = 0; 
+EE = 0.2; 
+xe = -1; 
 xmax = 10;
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
