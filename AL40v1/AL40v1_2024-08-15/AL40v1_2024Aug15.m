@@ -72,9 +72,9 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close
 
-CT = mean(CD);
-EE = 0.2; 
-xe = 0; 
+CT = mean(CD(2:3));
+EE = 0.23; 
+xe = 1.2; 
 xmax = 10;
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
