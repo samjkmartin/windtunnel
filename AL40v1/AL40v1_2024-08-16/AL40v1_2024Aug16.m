@@ -72,7 +72,7 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close
 
-CT = mean(CD(2:3));
+CT = mean(CD);
 EE = 0.23; 
 xe = 1.2; 
 xmax = 10;
