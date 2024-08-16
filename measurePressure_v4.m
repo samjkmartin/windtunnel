@@ -69,7 +69,7 @@ axisPressureHeight = uiaxes(grid);
 axisPressureHeight.Layout.Row    = [2 5];
 axisPressureHeight.Layout.Column = [3 4];
 axisPressureHeight.Title.String  = 'Pressure Versus Cranks';
-axisPressureHeight.YLabel.String = 'Cranks (mm)';
+axisPressureHeight.YLabel.String = 'Cranks';
 axisPressureHeight.XLabel.String = 'Pressure (in H_2O)';
 
 axisPressureHeight.Title.Color   = white;
@@ -228,7 +228,7 @@ sampleHolderX = [];
 % Sam 2015 right port "/dev/cu.usbmodem14201"
 % Sam 2021 left upper port "/dev/cu.usbmodem101"
 % Riley 2024 USB Port "COM5"
-a = arduino("COM5", "Uno", Libraries = "I2C");
+a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
 
 % Configure Pin
 configurePin(a,'A0','AnalogInput');
