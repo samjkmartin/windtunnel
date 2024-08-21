@@ -16,7 +16,7 @@ end
 %% Information about the disc (set manually)
 discName = 'AL50v1';
 D = 50; % diameter in mm
-S = 20; % span in mm
+S = 25; % span in mm
 R = D/2; % Disc radius
 
 %% Importing the raw data and saving to MATLAB variables
@@ -73,8 +73,8 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 close
 
 CT = mean(CD);
-EE = 0.23; 
-xe = 1.2; 
+EE = 0.3; 
+xe = 2; 
 xmax = 10;
 [xD,VwFull,DwFull,SwFull] = cfcModel(D,S,CT,EE,xe,xmax); 
 
