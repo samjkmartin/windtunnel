@@ -187,7 +187,7 @@ stepPanel.Layout.Row    = 1;
 stepPanel.Layout.Column = 6;
 stepSelector = uidropdown(stepPanel, ...
     'BackgroundColor',[172 247 193]/255);
-stepSelector.Items = {'2', '1', '0.5'};
+stepSelector.Items = {'2', '1', '0.5', '0.25'};
 stepSelector.Value = '2';
 
 % Field that allows you to change filename (first half)
@@ -228,7 +228,7 @@ sampleHolderX = [];
 % Sam 2015 right port "/dev/cu.usbmodem14201"
 % Sam 2021 left upper port "/dev/cu.usbmodem101"
 % Riley 2024 USB Port "COM5"
-a = arduino("COM5", "Uno", Libraries = "I2C");
+a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
 
 % Configure Pin
 configurePin(a,'A0','AnalogInput');
@@ -436,6 +436,9 @@ end
                 disp(stepSelector.Value)
             case 'd'
                 stepSelector.Value = '0.5';
+                disp(stepSelector.Value)
+            case 'f'
+                stepSelector.Value = '0.25';
                 disp(stepSelector.Value)
             case 'z'
                 % Dialog box to confirm that the user wants to undo the last measurement
