@@ -228,7 +228,7 @@ sampleHolderX = [];
 % Sam 2015 right port "/dev/cu.usbmodem14201"
 % Sam 2021 left upper port "/dev/cu.usbmodem101"
 % Riley 2024 USB Port "COM5"
-a = arduino("/dev/cu.usbmodem14101", "Uno", Libraries = "I2C");
+a = arduino("COM5", "Uno", Libraries = "I2C");
 
 % Configure Pin
 configurePin(a,'A0','AnalogInput');
