@@ -51,7 +51,7 @@ for j=1:numStations
     r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
     
-    pInfty(j) = max(pressure{j}(17:21)); 
+    pInfty(j) = max(pressure{j}(17:21)); % the equivalent of indices 1:5 when we normally collect data (I just added +16)
     uNorm{j} = sqrt(pressure{j}/pInfty(j)); 
     stdDevU{j} = 0.5*stdDevP{j}./sqrt(pressure{j}*pInfty(j));
 end
