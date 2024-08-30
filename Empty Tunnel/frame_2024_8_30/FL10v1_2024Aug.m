@@ -14,19 +14,19 @@ else
 end
 
 %% Information about the disc (set manually)
-discName = 'FL10v1';
-D = 50; % diameter in mm
-S = 5; % span in mm
+discName = 'testing';
+D = 0; % diameter in mm
+S = 0; % span in mm
 R = D/2; % Disc radius
 
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [1:9];
+stations = [1];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [34.75,34.5,34.25,33.75,33.75,33.5,33.5,33.25,33.25]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = [40]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
