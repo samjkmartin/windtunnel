@@ -14,19 +14,23 @@ else
 end
 
 %% Information about the disc (set manually)
-discName = 'testing';
-D = 0; % diameter in mm
+discName = 'frame';
+D = 50; % diameter in mm
 S = 0; % span in mm
 R = D/2; % Disc radius
 
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [1];
+stations = [1:5];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [40]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = (16+35)*ones(1,numStations); % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+% Note: crankOffset for full tunnel is: bottom of frame is 16 cranks below usual 
+% starting position (i.e. the usual zero). We then measure 70 cranks up, so
+% 35 cranks is the nominal "r=0". 16 + 35 = 51. Usually though, the actual
+% crank offsets end up being lower, between 30 and 35. 
 
 cranks = cell(numStations,1); 
 r = cranks; 
@@ -47,7 +51,7 @@ for j=1:numStations
     r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
     
-    pInfty(j) = max(pressure{j}(1:5)); 
+    pInfty(j) = max(pressure{j}(17:21)); 
     uNorm{j} = sqrt(pressure{j}/pInfty(j)); 
     stdDevU{j} = 0.5*stdDevP{j}./sqrt(pressure{j}*pInfty(j));
 end
@@ -55,17 +59,18 @@ end
 %% Plotting and analyzing the data
 
 % Plot formatting (set manually)
-uAxis = [0.6 1]; % U axis values for all velocity profile plots
-rAxis = [-1.25 1.25]; % r axis values for all velocity profile plots
+uAxis = [-inf 1.01]; % U axis values for all velocity profile plots
+rAxis = [-inf inf]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
 figProfiles = plotUR(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
 
 figOverlap = plotOverlap(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
+grid on
 
 figStdDev = plotStdDev(stations,D,S,pInfty,pressure,stdDevP,uNorm,stdDevU,rNorm,rAxis,sizeFont,sizeTitle); 
-
+%{
 uMax = 0.98; % u/Uinf threshold above which we do not include the data points in the drag calc
 [CD, figCD] = dragCoeff(stations,D,S,uNorm,rNorm,uMax,14,14);
 
@@ -83,7 +88,7 @@ figVw = compareVw(stations,D,S,Vw,Dw,Sw,xD,VwFull,DwFull,SwFull,EE,xe,sizeFont,s
 % figTophat = plotTophat(stations,D,S,uNorm,rNorm,xD,VwFull,DwFull,SwFull,EE,xe,uAxis,rAxis,sizeFont,sizeTitle);
 
 % figGaussFit = plotGaussFit(stations,D,S,uNorm,rNorm,xD,VwFull,DwFull,SwFull,EE,xe,uAxis,rAxis,sizeFont,sizeTitle);
-
+%}
 
 %% Export figures to PDF
 % exportgraphics(figProfiles, strcat('SD0,', num2str(100*S/D), '_profiles.pdf'),'ContentType','vector','BackgroundColor','none')
