@@ -1,4 +1,4 @@
-function measurePressure_v4
+ function measurePressure_v4
 
 % Calibration points:
 pressure1   = 0;
