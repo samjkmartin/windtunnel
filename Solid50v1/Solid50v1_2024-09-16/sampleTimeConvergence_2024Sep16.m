@@ -17,12 +17,12 @@ data = readmatrix('Solid50v1_emptyS4.csv');
 dt = 0.05; % for 20 Hz data from pressure transducer
 time = 0.05:0.05:300;
 
+pInfty = mean(data(1,6:405));
+
 voltage = data(18,6:end);
 meanvolts = mean(voltage)
 
-pInfty = mean(data(1,6:405));
-
-close
+meanU = sqrt(meanvolts/pInfty)
 
 sampleTimeRange = 1:60;
 maxDiffs = zeros(length(sampleTimeRange),1);
@@ -48,7 +48,7 @@ plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs) % plot Delta p (inc
 ylabel('\Deltap (inches of water)')
 xlabel('sample time (s)')
 title('Maximum excursion of recorded mean dynamic pressure from true mean')
-subtitle('S/D=0.5, solidity=0.6, 5 mins of data, Crank 29')
+subtitle('S/D=0.5, solidity=0.6, 5 mins of data, Station 4, Crank 34')
 legend('maximum excursion for X-second sample', 'mean std dev of X-second sample')
 ylim([0 inf])
 
@@ -57,7 +57,7 @@ plot(sampleTimeRange, maxDiffs/pInfty, sampleTimeRange, meanStDevs/pInfty)
 ylabel('\Deltap/p_{\infty}')
 xlabel('sample time (s)')
 title('Maximum excursion of recorded mean normalized pressure from true mean')
-subtitle('S/D=0.5, solidity=0.6, 5 mins of data, Crank 29')
+subtitle('S/D=0.5, solidity=0.6, 5 mins of data, Station 4, Crank 34')
 legend('maximum excursion of X-second sample', 'mean std dev of X-second sample')
 ylim([0 inf])
 
@@ -66,6 +66,6 @@ plot(sampleTimeRange, 0.5*maxDiffs/sqrt(meanvolts*pInfty), sampleTimeRange, 0.5*
 ylabel('\DeltaU/U_{\infty}')
 xlabel('sample time (s)')
 title('Maximum excursion of recorded mean normalized velocity from true mean')
-subtitle('S/D=0.5, solidity=0.6, 5 mins of data, Crank 29')
+subtitle('S/D=0.5, solidity=0.6, 5 mins of data, Station 4, Crank 34')
 legend('maximum excursion of X-second sample', 'mean std dev of X-second sample')
 ylim([0 inf])
