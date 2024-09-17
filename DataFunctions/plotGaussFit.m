@@ -50,11 +50,14 @@ for j=1:numStations
     b(j) = gaussFit{j}.b; 
     
     hold on
-    if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if the wake is circular
-        ufit(:,j) = 1 - deltaU(j).*(exp(-(rGauss).^2/b(j)^2));
-    else % if the wake is annular
+    % NOTE: it probably doesn't make sense to have this if/else because the
+    % fit function was applied to the double-gaussian, so the
+    % single-Gaussian won't look right.
+    % if (SwFullStations(j)/DwFullStations(j))>=SDcrit % if the wake is circular
+    %     ufit(:,j) = 1 - 2*deltaU(j).*(exp(-(rGauss).^2/b(j)^2));
+    % else % if the wake is annular
         ufit(:,j) = 1 - deltaU(j).*(exp(-((rGauss-Rp(j))/b(j)).^2)+exp(-((rGauss+Rp(j))/b(j)).^2));
-    end
+    % end
     plot(ufit(:,j),rGauss, 'r--')
     
     if j==2
