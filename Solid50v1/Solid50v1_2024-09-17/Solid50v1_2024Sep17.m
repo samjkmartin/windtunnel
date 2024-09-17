@@ -55,12 +55,42 @@ end
 %% Plotting and analyzing the data
 
 % Plot formatting (set manually)
-uAxis = [0.3 1]; % U axis values for all velocity profile plots
+uAxis = [0.25 1]; % U axis values for all velocity profile plots
 rAxis = [-inf inf]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
 figProfiles = plotUR(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
+
+%% plot Carmody's data to compare with ours
+
+load("xD3.mat")
+load("xD4.mat")
+load("xD6.mat")
+load("xD9.mat")
+
+U3 = Data003(:,1);
+U4 = Data004(:,1);
+U6 = Data005(:,1);
+U9 = Data006(:,1);
+
+R3 = Data003(:,2)/2; % dividing by 2 because Carmody uses r/R but we want r/D
+R4 = Data004(:,2)/2;
+R6 = Data005(:,2)/2;
+R9 = Data006(:,2)/2;
+
+hold on
+subplot(1,7,7)
+plot(U9,R9)
+subplot(1,7,4)
+plot(U6,R6)
+subplot(1,7,2)
+plot(U4,R4)
+subplot(1,7,1)
+plot(U3,R3)
+legend("Our data","","","Carmody's" + newline + "(1963) data",'location','southwest')
+
+%% back to our regularly scheduled programming 
 
 figOverlap = plotOverlap(stations,D,S,uNorm,rNorm,uAxis,rAxis,sizeFont,sizeTitle); 
 
@@ -72,7 +102,7 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close
 
-CT = mean(CD(2:5));
+CT = mean(CD(2:4));
 EE = 0.2; 
 xe = 0; 
 xmax = 10;
