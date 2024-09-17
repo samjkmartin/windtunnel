@@ -81,8 +81,8 @@ for j=1:length(sampleTimeRange)
 end
 
 hold on
-% plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs) % plot Delta p (inches of water)
-plot(sampleTimeRange, maxDiffs/meanvolts, sampleTimeRange, meanStDevs/meanvolts) % plot Delta p/p (normalized)
+plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs) % plot Delta p (inches of water)
+% plot(sampleTimeRange, maxDiffs/meanvolts, sampleTimeRange, meanStDevs/meanvolts) % plot Delta p/p (normalized)
 
 
 %% Wake Outer Region Data
@@ -119,10 +119,10 @@ for j=1:length(sampleTimeRange)
 end
 
 hold on
-% plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs) % plot Delta p (inches of water)
-% ylabel('\Deltap (inches of water)')
-plot(sampleTimeRange, maxDiffs/meanvolts, sampleTimeRange, meanStDevs/meanvolts)
-ylabel('\Deltap/p')
+plot(sampleTimeRange, maxDiffs, sampleTimeRange, meanStDevs) % plot Delta p (inches of water)
+ylabel('\Deltap (inches of water)')
+% plot(sampleTimeRange, maxDiffs/meanvolts, sampleTimeRange, meanStDevs/meanvolts)
+% ylabel('\Deltap/p')
 xlabel('sample time (s)')
 title('Maximum excursion of recorded mean dynamic pressure from true mean')
 subtitle('S/D=0.2, 5 mins of data')
