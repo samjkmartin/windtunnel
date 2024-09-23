@@ -12,7 +12,7 @@ of time we average over in order to get that mean.
 
 %% S/D=0.3 wake S3 crank __
 
-data = readmatrix('Solid30v1S3_5min.csv'); % INPUT
+data = readmatrix('Solid30v1S3_5min.csv'); % INPUT file name
 
 dt = 0.05; % for 20 Hz data from pressure transducer
 time = 0.05:0.05:300; % time array for 5 mins of data at 20 Hz
