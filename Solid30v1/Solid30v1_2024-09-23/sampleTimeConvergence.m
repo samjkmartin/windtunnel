@@ -10,14 +10,14 @@ quantify the accuracy of the mean pressure we record based on the amount
 of time we average over in order to get that mean. 
 %}
 
-%% S/D=0.3 wake S3 crank __
+%% S/D=0.3 wake S3 crank 31.25
 
 data = readmatrix('Solid30v1S3_5min.csv'); % INPUT
 
 dt = 0.05; % for 20 Hz data from pressure transducer
 time = 0.05:0.05:300; % time array for 5 mins of data at 20 Hz
 
-pInfty = mean(data(1,6:405)); % INPUT row number corresponding to free-stream sample
+pInfty = mean(data(1,6:605)); % INPUT row number corresponding to free-stream sample
 % columns 6:405 is for 20 sec, i.e. (1:(20*20)) + 5
 
 voltage = data(21,6:end); % INPUT row number corresponding to 5-min wake sample
