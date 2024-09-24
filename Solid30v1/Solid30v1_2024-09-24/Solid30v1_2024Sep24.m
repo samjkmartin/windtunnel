@@ -22,7 +22,7 @@ R = D/2; % Disc radius
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [4];
+stations = [3];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
@@ -55,8 +55,8 @@ end
 %% Plotting and analyzing the data
 
 % Plot formatting (set manually)
-uAxis = [0.55 1]; % U axis values for all velocity profile plots
-rAxis = [-1.25 1.25]; % r axis values for all velocity profile plots
+uAxis = [0.35 1]; % U axis values for all velocity profile plots
+rAxis = [-1.75 1.75]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
