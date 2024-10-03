@@ -56,7 +56,7 @@ end
 
 % Plot formatting (set manually)
 uAxis = [0.35 1]; % U axis values for all velocity profile plots
-rAxis = [-1.75 1.75]; % r axis values for all velocity profile plots
+rAxis = [-2 2]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
@@ -72,7 +72,7 @@ uMax = 0.98; % u/Uinf threshold above which we do not include the data points in
 [Vw, Dw, Sw, figMeanWake] = meanWake(stations,D,S,uNorm,rNorm,uMax,14,14);
 close
 
-CT = mean(CD);
+CT = mean(CD(2:6));
 EE = 0.2; 
 xe = 0; 
 xmax = 10;
