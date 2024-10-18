@@ -55,8 +55,8 @@ end
 %% Plotting and analyzing the data
 
 % Plot formatting (set manually)
-uAxis = [0.35 1]; % U axis values for all velocity profile plots
-rAxis = [-2 2]; % r axis values for all velocity profile plots
+uAxis = [0.55 1]; % U axis values for all velocity profile plots
+rAxis = [-inf inf]; % r axis values for all velocity profile plots
 sizeFont = 20; % default font size for multi-panel figures
 sizeTitle = 24; % default title font size for multi-panel figures
 
