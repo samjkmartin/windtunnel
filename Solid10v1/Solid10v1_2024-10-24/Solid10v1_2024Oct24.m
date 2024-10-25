@@ -22,11 +22,11 @@ R = D/2; % Disc radius
 %% Importing the raw data and saving to MATLAB variables
 % Set crankOffsets manually
 
-stations = [2,4];
+stations = [2:4];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [35,34.75]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = [35,34.75,34.75]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
