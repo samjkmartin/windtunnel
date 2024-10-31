@@ -26,7 +26,7 @@ stations = [4];
 numStations = length(stations);
 
 crankHeight = 3; % mm per crank
-crankOffsets = [34]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
+crankOffsets = [33.75]; % to set position of r=0 for each wake station (units: number of cranks from probe's starting position)
 
 cranks = cell(numStations,1); 
 r = cranks; 
@@ -40,9 +40,9 @@ stdDevU = cranks;
 % convert raw data into normalized radial position and velocity
 for j=1:numStations
     data = readmatrix(strcat(discName,'S',num2str(stations(j)),'.csv'));
-    cranks{j} = data(:,2); % number of cranks up from starting probe position
-    pressure{j} = data(:,4); % dynamic pressure in inches of water
-    stdDevP{j} = data(:,5); % standard deviation of dynamic pressure snapshots from mean
+    cranks{j} = data(1:end-1,2); % number of cranks up from starting probe position
+    pressure{j} = data(1:end-1,4); % dynamic pressure in inches of water
+    stdDevP{j} = data(1:end-1,5); % standard deviation of dynamic pressure snapshots from mean
     
     r = crankHeight*(cranks{j}-crankOffsets(j)); % vertical position in mm relative to the center of the disc
     rNorm{j} = r/D;
